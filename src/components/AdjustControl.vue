@@ -18,8 +18,8 @@
           @input="onInput(s.key, ($event.target as HTMLInputElement).valueAsNumber)"
         >
       </div>
-      <p v-if="paletteSize > 16 && paletteSize <= 32" class="dither-hint">当前调色板已自动降低抖动强度</p>
-      <p v-else-if="paletteSize >= 33" class="dither-hint">当前调色板已禁用抖动</p>
+      <p v-if="paletteSize != null && paletteSize > 16 && paletteSize <= 32" class="dither-hint">当前调色板已自动降低抖动强度</p>
+      <p v-else-if="paletteSize != null && paletteSize >= 33" class="dither-hint">当前调色板已禁用抖动</p>
 
       <p class="section-label">块大小</p>
       <div class="btn-group">
