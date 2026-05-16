@@ -4,28 +4,31 @@
       <!-- 左侧控制 -->
       <div class="left-panel">
         <WinFrame title="Pixel.exe">
-          <SizeControl
-            v-model="converter.pixelSize.value"
-            @update:model-value="converter.reconvert(getCanvas())"
+          <PipelineControl
+            :stages="converter.stages.value"
+            :display-pixel-size="converter.displayPixelSize.value"
+            @update:display-pixel-size="converter.displayPixelSize.value = $event; converter.reconvert(getCanvas())"
+            @update:stage="(stageId, patch) => { converter.updateStage(stageId, patch); converter.reconvert(getCanvas()) }"
           />
+          <!--
           <AdjustControl
             v-model="converter.adjust"
             :palette-size="converter.currentPalette.value?.colors.length ?? 0"
             @update:model-value="converter.reconvert(getCanvas())"
           />
+          -->
+          <!--
           <FxControl
             v-model="converter.fx"
             @toggle="(key) => converter.toggleFx(key, getCanvas())"
           />
+          -->
         </WinFrame>
 
         <StylePresets
           :presets="presets"
-          :pixel-size="converter.pixelSize.value"
+          :pixel-size="converter.displayPixelSize.value"
           :palette-key="converter.paletteKey.value"
-          :adjust="converter.adjust"
-          :fx="converter.fx"
-          @apply="onPresetApply"
         />
 
         <WinFrame title="调色板" :body-style="{ padding: '6px' }">
@@ -44,7 +47,7 @@
         class="preview-panel"
         :has-image="converter.hasImage.value"
         :is-processing="converter.isProcessing.value"
-        :pixel-size="converter.pixelSize.value"
+        :pixel-size="converter.displayPixelSize.value"
         :palette-name="converter.currentPalette.value?.name ?? ''"
         @file-loaded="(file, canvas) => converter.loadImageFile(file, canvas)"
       />
@@ -65,34 +68,25 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { usePixelConverter } from '@/composables/usePixelConverter'
-import type { RGB, StylePreset } from '@/types'
-import { PRESETS } from '@/data/presets'
+import { usePipeline } from '@/composables/usePipeline'
+import type { RGB } from '@/types'
+import type { PipelinePreset } from '@/pipeline/types'
+import { BUILTIN_PRESETS } from '@/data/presets'
 
 import WinFrame from '@/components/WinFrame.vue'
-import SizeControl from '@/components/SizeControl.vue'
-import AdjustControl from '@/components/AdjustControl.vue'
-import FxControl from '@/components/FxControl.vue'
+import PipelineControl from '@/components/PipelineControl.vue'
 import PalettePanel from '@/components/PalettePanel.vue'
 import PreviewPanel from '@/components/PreviewPanel.vue'
 import CustomPaletteModal from '@/components/CustomPaletteModal.vue'
 import Taskbar from '@/components/Taskbar.vue'
 import StylePresets from '@/components/StylePresets.vue'
 
-const converter = usePixelConverter()
+const converter = usePipeline()
 const previewRef = ref<InstanceType<typeof PreviewPanel> | null>(null)
-const presets = PRESETS
+const presets = BUILTIN_PRESETS
 
 function getCanvas(): HTMLCanvasElement {
   return previewRef.value!.canvasRef!
-}
-
-function onPresetApply(preset: StylePreset) {
-  converter.pixelSize.value = preset.pixelSize
-  converter.paletteKey.value = preset.paletteKey
-  Object.assign(converter.adjust, preset.adjust)
-  Object.assign(converter.fx, preset.fx)
-  converter.reconvert(getCanvas())
 }
 
 // 自定义调色板弹窗状态

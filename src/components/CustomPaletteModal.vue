@@ -121,7 +121,7 @@ function addColor() {
 function editColor(i: number) {
   editingIndex = i
   if (pickerRef.value) {
-    pickerRef.value.value = toHex(localColors.value[i])
+    pickerRef.value.value = toHex(localColors.value[i]!)
     pickerRef.value.click()
   }
 }
@@ -130,7 +130,7 @@ function onPickerChange(e: Event) {
   const hex = (e.target as HTMLInputElement).value
   const rgb = hexToRgb(hex)
   if (!rgb) return
-  if (editingIndex >= 0) {
+  if (editingIndex >= 0 && editingIndex < localColors.value.length) {
     localColors.value[editingIndex] = rgb
   } else {
     localColors.value.push(rgb)
