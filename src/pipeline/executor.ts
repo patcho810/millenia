@@ -1,6 +1,7 @@
 import type { StageNode, StageId } from './types'
 import { preprocessAlgorithms } from './stages/preprocess'
 import { scaleAlgorithms } from './stages/scale'
+import { paletteAlgorithms } from './stages/palette'
 import { quantizeAlgorithms } from './stages/quantize'
 import { ditherAlgorithms } from './stages/dither'
 import { blockAlgorithms } from './stages/block'
@@ -8,11 +9,12 @@ import { rgbToLab } from './stages/shared'
 
 type RGB = [number, number, number]
 
-const STAGE_ORDER: StageId[] = ['scale', 'preprocess', 'quantize', 'block', 'dither']
+const STAGE_ORDER: StageId[] = ['scale', 'preprocess', 'palette', 'quantize', 'block', 'dither']
 
 const ALGO_MAP: Record<StageId, Record<string, Function>> = {
   preprocess: preprocessAlgorithms,
   scale: scaleAlgorithms,
+  palette: paletteAlgorithms,
   quantize: quantizeAlgorithms,
   dither: ditherAlgorithms,
   block: blockAlgorithms,
@@ -65,23 +67,24 @@ export async function executePipeline(
     if (fn) fn(id, pw, ph, preprocessStage.params)
   }
 
+  const paletteStage = stageMap.get('palette')
+  if (paletteStage?.enabled && paletteStage.algorithm === 'median-cut') {
+    const fn = paletteAlgorithms[paletteStage.algorithm]
+    if (fn) {
+      const generated = fn(id, pw, ph, paletteStage.params as Record<string, number>)
+      if (generated.length > 0) {
+        palette.length = 0
+        palette.push(...generated)
+        paletteLab.length = 0
+        paletteLab.push(...generated.map(c => rgbToLab(c[0], c[1], c[2])))
+      }
+    }
+  }
+
   const quantizeStage = stageMap.get('quantize')
   if (quantizeStage?.enabled) {
     const fn = ALGO_MAP.quantize[quantizeStage.algorithm]
-    if (fn) {
-      if (quantizeStage.algorithm === 'median-cut') {
-        const adaptivePalette: RGB[] = []
-        fn(id, pw, ph, adaptivePalette, quantizeStage.params)
-        if (adaptivePalette.length > 0) {
-          palette.length = 0
-          palette.push(...adaptivePalette)
-          paletteLab.length = 0
-          paletteLab.push(...adaptivePalette.map(c => rgbToLab(c[0], c[1], c[2])))
-        }
-      } else {
-        fn(id, pw, ph, palette, quantizeStage.params, paletteLab)
-      }
-    }
+    if (fn) fn(id, pw, ph, palette, quantizeStage.params as Record<string, number>, paletteLab)
   }
 
   const blockStage = stageMap.get('block')

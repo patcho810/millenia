@@ -1,4 +1,4 @@
-export type StageId = 'preprocess' | 'scale' | 'quantize' | 'dither' | 'block' | 'postfx'
+export type StageId = 'preprocess' | 'scale' | 'palette' | 'quantize' | 'dither' | 'block' | 'postfx'
 
 export interface StageNode {
   stageId: StageId

@@ -13,11 +13,12 @@ export function usePipeline() {
   const paletteKey = ref('sora')
   const stages = ref<StageNode[]>([
     { stageId: 'preprocess', enabled: false, algorithm: 'none', params: {} },
-    { stageId: 'scale',       enabled: true,  algorithm: 'bilinear',       params: {} },
-    { stageId: 'quantize',    enabled: true,  algorithm: 'nearest-lab',    params: {} },
-    { stageId: 'block',       enabled: false, algorithm: 'none',           params: {} },
-    { stageId: 'dither',      enabled: true,  algorithm: 'floyd-steinberg', params: { strength: 0.3 } },
-    { stageId: 'postfx',      enabled: false, algorithm: 'none',           params: {} },
+    { stageId: 'scale',      enabled: false, algorithm: 'none', params: {} },
+    { stageId: 'palette',    enabled: true,  algorithm: 'fixed', params: {} },
+    { stageId: 'quantize',   enabled: false, algorithm: 'none', params: {} },
+    { stageId: 'block',      enabled: false, algorithm: 'none', params: {} },
+    { stageId: 'dither',     enabled: false, algorithm: 'none', params: {} },
+    { stageId: 'postfx',     enabled: false, algorithm: 'none', params: {} },
   ])
 
   const currentPalette = computed(() => palettes[paletteKey.value])
@@ -139,8 +140,13 @@ export function usePipeline() {
     if (anyEnabled) startFx(ctx, canvas.width, canvas.height)
   }
 
-  async function reconvert(canvas: HTMLCanvasElement) {
-    if (hasImage.value) await convert(canvas)
+  let reconvertTimer: ReturnType<typeof setTimeout> | null = null
+
+  function reconvert(canvas: HTMLCanvasElement) {
+    if (reconvertTimer) clearTimeout(reconvertTimer)
+    reconvertTimer = setTimeout(() => {
+      if (hasImage.value) convert(canvas)
+    }, 300)
   }
 
   function getCanvas() {

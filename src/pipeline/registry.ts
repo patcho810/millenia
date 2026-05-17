@@ -42,15 +42,18 @@ export const ALGORITHM_REGISTRY: AlgorithmDef[] = [
     id: 'lanczos', stageId: 'scale', label: 'Lanczos (approx)', defaultParams: {},
   },
 
-  // quantize
-  { id: 'nearest-lab', stageId: 'quantize', label: 'Nearest (CIELAB)', defaultParams: {} },
-  { id: 'nearest-rgb', stageId: 'quantize', label: 'Nearest (RGB)', defaultParams: {} },
+  // palette
+  { id: 'fixed', stageId: 'palette', label: 'Fixed', defaultParams: {} },
   {
-    id: 'median-cut', stageId: 'quantize', label: 'Median Cut', defaultParams: { colors: 16 },
+    id: 'median-cut', stageId: 'palette', label: 'Median Cut', defaultParams: { colors: 16 },
     paramDefs: [
       { key: 'colors', label: '颜色数', type: 'range', min: 2, max: 64, step: 1, default: 16 },
     ],
   },
+
+  // quantize
+  { id: 'nearest-lab', stageId: 'quantize', label: 'Nearest (CIELAB)', defaultParams: {} },
+  { id: 'nearest-rgb', stageId: 'quantize', label: 'Nearest (RGB)', defaultParams: {} },
 
   // dither
   { id: 'none', stageId: 'dither', label: 'None', defaultParams: {} },

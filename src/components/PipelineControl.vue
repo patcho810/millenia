@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, watch, onMounted } from 'vue'
 import type { StageNode, StageId } from '@/pipeline/types'
 
 const props = defineProps<{
@@ -70,6 +71,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:displayPixelSize': [value: number]
   'update:stage': [stageId: StageId, patch: Partial<StageNode>]
+  'palette-adaptive': [boolean]
 }>()
 
 const sizes = [2, 3, 4, 5]
@@ -77,6 +79,7 @@ const sizes = [2, 3, 4, 5]
 const STAGE_LABELS: Record<StageId, string> = {
   preprocess: 'Preprocess',
   scale: 'Scale',
+  palette: 'Palette',
   quantize: 'Quantize',
   block: 'Block',
   dither: 'Dither',
@@ -97,10 +100,13 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
     { id: 'bicubic', label: 'Bicubic' },
     { id: 'lanczos', label: 'Lanczos' },
   ],
+  palette: [
+    { id: 'fixed', label: 'Fixed' },
+    { id: 'median-cut', label: 'Median Cut' },
+  ],
   quantize: [
     { id: 'nearest-lab', label: 'Nearest Lab' },
     { id: 'nearest-rgb', label: 'Nearest RGB' },
-    { id: 'median-cut', label: 'Median Cut' },
   ],
   block: [
     { id: 'none', label: 'None' },
@@ -145,7 +151,7 @@ const ALGO_PARAMS: Record<string, ParamInfo[]> = {
     { key: 'contrast', label: 'Contrast', min: -100, max: 100, step: 5, default: 0 },
     { key: 'saturation', label: 'Saturation', min: 0, max: 2, step: 0.1, default: 1 },
   ],
-  'quantize:median-cut': [
+  'palette:median-cut': [
     { key: 'colors', label: 'Colors', min: 2, max: 64, step: 1, default: 16 },
   ],
   'block:tile-palette': [
@@ -213,6 +219,16 @@ function onPostFxToggle(key: string, currentParams: StageNode['params']) {
     params: nextParams,
   })
 }
+
+const paletteStage = computed(() => props.stages.find(s => s.stageId === 'palette'))
+
+function emitPaletteAdaptive() {
+  const s = paletteStage.value
+  emit('palette-adaptive', !!(s?.enabled && s?.algorithm === 'median-cut'))
+}
+
+watch(paletteStage, emitPaletteAdaptive, { deep: true })
+onMounted(emitPaletteAdaptive)
 </script>
 
 <style scoped>

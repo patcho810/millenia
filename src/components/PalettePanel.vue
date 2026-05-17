@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="disabled ? { opacity: '0.4', pointerEvents: 'none' } : {}">
     <div class="palette-grid">
       <button
         v-for="(pal, key) in palettes"
@@ -29,6 +29,7 @@ import type { PaletteMap } from '@/types'
 defineProps<{
   palettes: PaletteMap
   modelValue: string
+  disabled?: boolean
 }>()
 
 defineEmits<{
