@@ -98,110 +98,152 @@ function wuQuantize(
 ): RGB[] {
   const colorCount = Math.max(2, Math.min(256, params['colors'] ?? 16))
   const d = imgData.data
-  const SIDE = 32
-  const SHIFT = 3
 
-  const size = SIDE * SIDE * SIDE
-  const weight = new Int32Array(size)
-  const sumR = new Int32Array(size)
-  const sumG = new Int32Array(size)
-  const sumB = new Int32Array(size)
+  // SIDE=64 (6-bit). Each channel shifted by SHIFT=2 bits, giving 64 histogram bins.
+  // This balances precision (64³ ≈ 262k cells) against memory (~2 MB per moment array).
+  const SIDE = 64
+  const SHIFT = 8 - Math.log2(SIDE) // = 2
 
+  const MAXSIDEINDEX = SIDE
+  const SIDESIZE = MAXSIDEINDEX + 1 // 65 — includes index-0 zero-row for prefix sums
+  const totalSize = SIDESIZE * SIDESIZE * SIDESIZE
+  const cellIdx = (r: number, g: number, b: number) => r + g * SIDESIZE + b * SIDESIZE * SIDESIZE
+
+  // Per-cell moments. Float64Array avoids Int32 overflow on large images.
+  // moment stores M2 = sum(pixel_r² + pixel_g² + pixel_b²) per cell.
+  const weight = new Float64Array(totalSize)
+  const momentR = new Float64Array(totalSize)
+  const momentG = new Float64Array(totalSize)
+  const momentB = new Float64Array(totalSize)
+  const moment = new Float64Array(totalSize)
+
+  // Alpha-weighted histogram: semi-transparent pixels contribute proportionally
+  // less, reflecting actual visual blending impact on the palette.
   for (let i = 0; i < d.length; i += 4) {
-    if (d[i + 3]! < 30) continue
-    const r = d[i]! >> SHIFT
-    const g = d[i + 1]! >> SHIFT
-    const b = d[i + 2]! >> SHIFT
-    const idx = r * SIDE * SIDE + g * SIDE + b
-    weight[idx]!++
-    sumR[idx]! += d[i]!
-    sumG[idx]! += d[i + 1]!
-    sumB[idx]! += d[i + 2]!
+    const a = d[i + 3]!
+    if (a === 0) continue
+    const r = (d[i]! >> SHIFT) + 1
+    const g = (d[i + 1]! >> SHIFT) + 1
+    const b = (d[i + 2]! >> SHIFT) + 1
+    const idx = cellIdx(r, g, b)
+    const aw = a / 255
+    const pr = d[i]!, pg = d[i + 1]!, pb = d[i + 2]!
+    weight[idx]! += aw
+    momentR[idx]! += pr * aw
+    momentG[idx]! += pg * aw
+    momentB[idx]! += pb * aw
+    moment[idx]! += (pr * pr + pg * pg + pb * pb) * aw
   }
+
+  // In-place 3D prefix sums (reference: CalculateMoments).
+  // Transforms raw per-cell data into inclusive prefix sums over [0..r]×[0..g]×[0..b].
+  const prefix3d = (arr: Float64Array): void => {
+    for (let r = 1; r <= MAXSIDEINDEX; r++)
+      for (let g = 0; g <= MAXSIDEINDEX; g++)
+        for (let b = 0; b <= MAXSIDEINDEX; b++)
+          arr[cellIdx(r, g, b)]! += arr[cellIdx(r - 1, g, b)]!
+    for (let r = 0; r <= MAXSIDEINDEX; r++)
+      for (let g = 1; g <= MAXSIDEINDEX; g++)
+        for (let b = 0; b <= MAXSIDEINDEX; b++)
+          arr[cellIdx(r, g, b)]! += arr[cellIdx(r, g - 1, b)]!
+    for (let r = 0; r <= MAXSIDEINDEX; r++)
+      for (let g = 0; g <= MAXSIDEINDEX; g++)
+        for (let b = 1; b <= MAXSIDEINDEX; b++)
+          arr[cellIdx(r, g, b)]! += arr[cellIdx(r, g, b - 1)]!
+  }
+
+  prefix3d(weight)
+  prefix3d(momentR)
+  prefix3d(momentG)
+  prefix3d(momentB)
+  prefix3d(moment)
+
+  // O(1) sub-box query via inclusion-exclusion.
+  // Box bounds are direct indices [0..MAXSIDEINDEX]; the summed range is (min, max].
+  const volume = (arr: Float64Array, r0: number, r1: number, g0: number, g1: number, b0: number, b1: number): number =>
+    arr[cellIdx(r1, g1, b1)]!
+    - arr[cellIdx(r0, g1, b1)]! - arr[cellIdx(r1, g0, b1)]! - arr[cellIdx(r1, g1, b0)]!
+    + arr[cellIdx(r0, g0, b1)]! + arr[cellIdx(r0, g1, b0)]! + arr[cellIdx(r1, g0, b0)]!
+    - arr[cellIdx(r0, g0, b0)]!
 
   type Box = [number, number, number, number, number, number]
 
-  function boxVolume([r0, r1, g0, g1, b0, b1]: Box): number {
-    return (r1 - r0) * (g1 - g0) * (b1 - b0)
+  // Reference: CalculateVariance — M2 - M1²/M0
+  function boxVariance(box: Box): number {
+    const [r0, r1, g0, g1, b0, b1] = box
+    const w = volume(weight, r0, r1, g0, g1, b0, b1)
+    if (w <= 0) return -1
+    const sr = volume(momentR, r0, r1, g0, g1, b0, b1)
+    const sg = volume(momentG, r0, r1, g0, g1, b0, b1)
+    const sb = volume(momentB, r0, r1, g0, g1, b0, b1)
+    const m2 = volume(moment, r0, r1, g0, g1, b0, b1)
+    return m2 - (sr * sr + sg * sg + sb * sb) / w
   }
 
-  function boxStats(box: Box): { count: number; r: number; g: number; b: number } {
+  // Reference: Maximize + Cut — find best split plane across all 3 axes
+  function cut(box: Box): [Box, Box] | null {
     const [r0, r1, g0, g1, b0, b1] = box
-    let count = 0, tr = 0, tg = 0, tb = 0
-    for (let r = r0; r < r1; r++)
-      for (let g = g0; g < g1; g++)
-        for (let b = b0; b < b1; b++) {
-          const idx = r * SIDE * SIDE + g * SIDE + b
-          count += weight[idx]!
-          tr += sumR[idx]!; tg += sumG[idx]!; tb += sumB[idx]!
-        }
-    return { count, r: tr, g: tg, b: tb }
-  }
+    const w = volume(weight, r0, r1, g0, g1, b0, b1)
+    const sR = volume(momentR, r0, r1, g0, g1, b0, b1)
+    const sG = volume(momentG, r0, r1, g0, g1, b0, b1)
+    const sB = volume(momentB, r0, r1, g0, g1, b0, b1)
 
-  function variance(box: Box): number {
-    const [r0, r1, g0, g1, b0, b1] = box
-    let count = 0, sr = 0, sg = 0, sb = 0, sr2 = 0, sg2 = 0, sb2 = 0
-    for (let r = r0; r < r1; r++)
-      for (let g = g0; g < g1; g++)
-        for (let b = b0; b < b1; b++) {
-          const idx = r * SIDE * SIDE + g * SIDE + b
-          const w = weight[idx]!
-          if (w === 0) continue
-          const mr = sumR[idx]! / w, mg = sumG[idx]! / w, mb = sumB[idx]! / w
-          count += w; sr += mr * w; sg += mg * w; sb += mb * w
-          sr2 += mr * mr * w; sg2 += mg * mg * w; sb2 += mb * mb * w
-        }
-    if (count === 0) return 0
-    return (sr2 - sr * sr / count) + (sg2 - sg * sg / count) + (sb2 - sb * sb / count)
-  }
+    let bestVal = -1, bestAxis = -1, bestPos = 0
 
-  function splitBox(box: Box): [Box, Box] | null {
-    const [r0, r1, g0, g1, b0, b1] = box
-    let bestVar = -1, bestAxis = 0, bestSplit = 0
-    for (let axis = 0; axis < 3; axis++) {
-      const lo = axis === 0 ? r0 : axis === 1 ? g0 : b0
-      const hi = axis === 0 ? r1 : axis === 1 ? g1 : b1
-      for (let split = lo + 1; split < hi; split++) {
-        const boxA: Box = axis === 0 ? [r0, split, g0, g1, b0, b1]
-                        : axis === 1 ? [r0, r1, g0, split, b0, b1]
-                        :              [r0, r1, g0, g1, b0, split]
-        const boxB: Box = axis === 0 ? [split, r1, g0, g1, b0, b1]
-                        : axis === 1 ? [r0, r1, split, g1, b0, b1]
-                        :              [r0, r1, g0, g1, split, b1]
-        const v = variance(boxA) + variance(boxB)
-        if (v > bestVar) { bestVar = v; bestAxis = axis; bestSplit = split }
+    type Axis = 0 | 1 | 2
+    for (let axis = 0 as Axis; axis < 3; axis++) {
+      const [lo, hi] = axis === 0 ? [r0, r1] : axis === 1 ? [g0, g1] : [b0, b1]
+      for (let p = lo + 1; p < hi; p++) {
+        const get = (loVal: number, hiVal: number) => axis === 0 ? [loVal, p, g0, g1, b0, b1] as const : axis === 1 ? [r0, r1, loVal, p, b0, b1] as const : [r0, r1, g0, g1, loVal, p] as const
+        const [a0, a1, a2, a3, a4, a5] = get(lo, hi)
+        const wA = volume(weight, a0, a1, a2, a3, a4, a5)
+        if (wA <= 0) continue
+        const wB = w - wA
+        if (wB <= 0) continue
+        const sRA = volume(momentR, a0, a1, a2, a3, a4, a5)
+        const sGA = volume(momentG, a0, a1, a2, a3, a4, a5)
+        const sBA = volume(momentB, a0, a1, a2, a3, a4, a5)
+        const sRB = sR - sRA, sGB = sG - sGA, sBB = sB - sBA
+        const val = (sRA * sRA + sGA * sGA + sBA * sBA) / wA
+                  + (sRB * sRB + sGB * sGB + sBB * sBB) / wB
+        if (val > bestVal) { bestVal = val; bestAxis = axis; bestPos = p }
       }
     }
-    if (bestSplit === 0) return null
-    const a: Box = bestAxis === 0 ? [r0, bestSplit, g0, g1, b0, b1]
-                 : bestAxis === 1 ? [r0, r1, g0, bestSplit, b0, b1]
-                 :                  [r0, r1, g0, g1, b0, bestSplit]
-    const b: Box = bestAxis === 0 ? [bestSplit, r1, g0, g1, b0, b1]
-                 : bestAxis === 1 ? [r0, r1, bestSplit, g1, b0, b1]
-                 :                  [r0, r1, g0, g1, bestSplit, b1]
-    return [a, b]
+
+    if (bestAxis < 0) return null
+    const [ar0, ar1, ag0, ag1, ab0, ab1] = bestAxis === 0 ? [r0, bestPos, g0, g1, b0, b1] as const : bestAxis === 1 ? [r0, r1, g0, bestPos, b0, b1] as const : [r0, r1, g0, g1, b0, bestPos] as const
+    const [br0, br1, bg0, bg1, bb0, bb1] = bestAxis === 0 ? [bestPos, r1, g0, g1, b0, b1] as const : bestAxis === 1 ? [r0, r1, bestPos, g1, b0, b1] as const : [r0, r1, g0, g1, bestPos, b1] as const
+    return [[ar0, ar1, ag0, ag1, ab0, ab1], [br0, br1, bg0, bg1, bb0, bb1]]
   }
 
-  let boxes: Box[] = [[0, SIDE, 0, SIDE, 0, SIDE]]
+  // Reference: SplitData — iterative box partitioning
+  let boxes: Box[] = [[0, MAXSIDEINDEX, 0, MAXSIDEINDEX, 0, MAXSIDEINDEX]]
   while (boxes.length < colorCount) {
     let bestIdx = -1, bestVar = -1
     for (let i = 0; i < boxes.length; i++) {
-      if (boxVolume(boxes[i]!) <= 1) continue
-      const v = variance(boxes[i]!)
+      const v = boxVariance(boxes[i]!)
       if (v > bestVar) { bestVar = v; bestIdx = i }
     }
     if (bestIdx === -1) break
-    const split = splitBox(boxes[bestIdx]!)
+    const split = cut(boxes[bestIdx]!)
     if (!split) break
     boxes.splice(bestIdx, 1, split[0], split[1])
   }
 
+  // Reference: BuildLookups — compute average color per box from prefix sums
   const result: RGB[] = []
   for (const box of boxes) {
-    const { count, r, g, b } = boxStats(box)
-    if (count === 0) continue
-    result.push([Math.round(r / count), Math.round(g / count), Math.round(b / count)])
+    const [r0, r1, g0, g1, b0, b1] = box
+    const w = volume(weight, r0, r1, g0, g1, b0, b1)
+    if (w <= 0) continue
+    const r = Math.round(volume(momentR, r0, r1, g0, g1, b0, b1) / w)
+    const g = Math.round(volume(momentG, r0, r1, g0, g1, b0, b1) / w)
+    const b = Math.round(volume(momentB, r0, r1, g0, g1, b0, b1) / w)
+    result.push([r, g, b])
   }
+
+  if (result.length === 0) result.push([0, 0, 0])
+
   return result
 }
 

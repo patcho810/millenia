@@ -120,13 +120,6 @@ export const ALGORITHM_REGISTRY: AlgorithmDef[] = [
       { key: 'threshold', label: '阈值', type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.5 },
     ],
   },
-  {
-    id: 'blue-noise', stageId: 'dither', label: 'Blue Noise', defaultParams: { strength: 0.8, threshold: 0.5 },
-    paramDefs: [
-      { key: 'strength', label: '强度', type: 'range', min: 0, max: 1, step: 0.05, default: 0.8 },
-      { key: 'threshold', label: '阈值', type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.5 },
-    ],
-  },
 
   // block
   { id: 'none', stageId: 'block', label: 'None', defaultParams: {} },

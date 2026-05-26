@@ -188,7 +188,6 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
     { id: 'bayer-2x2', label: 'Bayer 2\u00d72' },
     { id: 'bayer-4x4', label: 'Bayer 4\u00d74' },
     { id: 'bayer-8x8', label: 'Bayer 8\u00d78' },
-    { id: 'blue-noise', label: 'Blue Noise' },
   ],
 }
 
@@ -262,10 +261,6 @@ const ALGO_PARAMS: Record<string, ParamInfo[]> = {
     { key: 'threshold', label: 'Threshold', min: 0.1, max: 1, step: 0.05, default: 0.5 },
   ],
   'dither:bayer-8x8': [
-    { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
-    { key: 'threshold', label: 'Threshold', min: 0.1, max: 1, step: 0.05, default: 0.5 },
-  ],
-  'dither:blue-noise': [
     { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
     { key: 'threshold', label: 'Threshold', min: 0.1, max: 1, step: 0.05, default: 0.5 },
   ],

@@ -25,4 +25,20 @@ function makeStages(
   }))
 }
 
-export const BUILTIN_PRESETS: PipelinePreset[] = []
+export const BUILTIN_PRESETS: PipelinePreset[] = [
+  {
+    id: 'pixeliaze',
+    name: 'Pixeliaze',
+    paletteKey: 'sora',
+    pixelSize: 2,
+    stages: [
+      { stageId: 'scale', enabled: true, algorithm: 'bicubic', params: {} },
+      { stageId: 'preprocess', enabled: true, algorithm: 'gaussian-blur', params: { radius: 1 } },
+      { stageId: 'palette', enabled: true, algorithm: 'wu', params: { colors: 16 } },
+      { stageId: 'quantize', enabled: true, algorithm: 'nearest-rgb', params: {} },
+      { stageId: 'dither', enabled: false, algorithm: 'none', params: {} },
+      { stageId: 'block', enabled: false, algorithm: 'none', params: {} },
+      { stageId: 'postfx', enabled: false, algorithm: 'none', params: {} },
+    ],
+  },
+]

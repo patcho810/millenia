@@ -116,7 +116,7 @@ export function usePipeline() {
 
   async function loadImageFile(file: File, canvas: HTMLCanvasElement): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!file.type.startsWith('image/')) { reject(new Error('not an image')); return }
+      if (file.type !== '' && !file.type.startsWith('image/')) { reject(new Error('not an image')); return }
       const url = URL.createObjectURL(file)
       const img = new Image()
       img.onload = async () => {
