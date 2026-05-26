@@ -94,6 +94,39 @@ function applyKernel(
     }
 }
 
+function bilateralFilter(imgData: ImageData, w: number, h: number, params: Record<string, number>) {
+  const radius = Math.max(1, Math.round(params['radius'] ?? 2))
+  const sigmaSpace = params['sigmaSpace'] ?? 10
+  const sigmaColor = params['sigmaColor'] ?? 30
+  const d = imgData.data
+  const copy = new Uint8ClampedArray(d)
+
+  for (let i = 0; i < h; i++) {
+    for (let j = 0; j < w; j++) {
+      const idx = (i * w + j) * 4
+      if (copy[idx + 3]! < 30) continue
+      const cr = copy[idx]!, cg = copy[idx + 1]!, cb = copy[idx + 2]!
+      let sumR = 0, sumG = 0, sumB = 0, sumW = 0
+      for (let di = -radius; di <= radius; di++) {
+        for (let dj = -radius; dj <= radius; dj++) {
+          const ni = Math.max(0, Math.min(h - 1, i + di))
+          const nj = Math.max(0, Math.min(w - 1, j + dj))
+          const ni2 = (ni * w + nj) * 4
+          const nr = copy[ni2]!, ng = copy[ni2 + 1]!, nb = copy[ni2 + 2]!
+          const spaceDist = di * di + dj * dj
+          const colorDist = (nr - cr) ** 2 + (ng - cg) ** 2 + (nb - cb) ** 2
+          const w_ = Math.exp(-spaceDist / (2 * sigmaSpace * sigmaSpace)
+                            - colorDist / (2 * sigmaColor * sigmaColor))
+          sumR += nr * w_; sumG += ng * w_; sumB += nb * w_; sumW += w_
+        }
+      }
+      d[idx]     = Math.round(sumR / sumW)
+      d[idx + 1] = Math.round(sumG / sumW)
+      d[idx + 2] = Math.round(sumB / sumW)
+    }
+  }
+}
+
 export const preprocessAlgorithms: Record<string, PreprocessFn> = {
   'none': none,
   'gaussian-blur': gaussianBlur,
@@ -101,4 +134,5 @@ export const preprocessAlgorithms: Record<string, PreprocessFn> = {
   'sharpen': sharpen,
   'bcs': bcs,
   'erode': erode,
+  'bilateral': bilateralFilter,
 }

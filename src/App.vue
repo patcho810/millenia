@@ -28,8 +28,7 @@
 
         <StylePresets
           :presets="presets"
-          :pixel-size="converter.displayPixelSize.value"
-          :palette-key="converter.paletteKey.value"
+          :apply-preset="(p) => converter.applyPreset(p, getCanvas())"
         />
 
         <WinFrame title="调色板" :body-style="{ padding: '6px' }">

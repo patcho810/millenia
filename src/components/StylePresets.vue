@@ -5,7 +5,7 @@
         v-for="p in presets"
         :key="p.name"
         class="retro-btn"
-        @click="$emit('apply', p)"
+        @click="applyPreset(p)"
       >{{ p.name }}</button>
     </div>
   </WinFrame>
@@ -17,9 +17,8 @@ import type { PipelinePreset } from '@/pipeline/types'
 
 defineProps<{
   presets: PipelinePreset[]
+  applyPreset: (preset: PipelinePreset) => void
 }>()
-
-defineEmits<{ apply: [preset: PipelinePreset] }>()
 
 
 </script>

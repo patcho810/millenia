@@ -39,20 +39,81 @@
         </div>
       </template>
 
-      <div v-if="s.enabled && s.stageId !== 'postfx'" class="stage-params">
-        <div v-for="p in getParams(s.stageId, s.algorithm)" :key="p.key" class="param-row">
+      <div v-else-if="s.enabled && s.stageId === 'palette-post' && s.algorithm === 'split-toning'" class="stage-params">
+        <div class="param-row toning-row">
+          <span class="toning-label">Shadow</span>
+          <input
+            type="color"
+            class="toning-color"
+            :value="String(s.params['shadowColor'] ?? '#6644aa')"
+            @input="emitColor(s.stageId, 'shadowColor', ($event.target as HTMLInputElement).value)"
+          />
+          <input
+            type="range"
+            class="toning-slider"
+            :min="0" :max="1" :step="0.01"
+            :value="Number(s.params['shadowStrength'] ?? 0)"
+            @input="emitRange(s.stageId, 'shadowStrength', ($event.target as HTMLInputElement).valueAsNumber)"
+          />
+          <span class="toning-val">{{ formatVal(s.params['shadowStrength'], 0.01) }}</span>
+        </div>
+        <div class="param-row toning-row">
+          <span class="toning-label">Highlight</span>
+          <input
+            type="color"
+            class="toning-color"
+            :value="String(s.params['highlightColor'] ?? '#ffdd88')"
+            @input="emitColor(s.stageId, 'highlightColor', ($event.target as HTMLInputElement).value)"
+          />
+          <input
+            type="range"
+            class="toning-slider"
+            :min="0" :max="1" :step="0.01"
+            :value="Number(s.params['highlightStrength'] ?? 0)"
+            @input="emitRange(s.stageId, 'highlightStrength', ($event.target as HTMLInputElement).valueAsNumber)"
+          />
+          <span class="toning-val">{{ formatVal(s.params['highlightStrength'], 0.01) }}</span>
+        </div>
+        <div class="param-row">
           <div class="slider-header">
-            <span>{{ p.label }}</span>
-            <span>{{ formatVal(s.params[p.key], p.step) }}</span>
+            <span>Midpoint</span>
+            <span>{{ formatVal(s.params['midpoint'], 1) }}</span>
           </div>
           <input
             type="range"
-            :min="p.min"
-            :max="p.max"
-            :step="p.step"
-            :value="s.params[p.key] ?? p.default"
-            @input="onParamChange(s.stageId, s.params, p, ($event.target as HTMLInputElement).valueAsNumber)"
+            :min="0" :max="100" :step="1"
+            :value="Number(s.params['midpoint'] ?? 50)"
+            @input="emitRange(s.stageId, 'midpoint', ($event.target as HTMLInputElement).valueAsNumber)"
           />
+        </div>
+      </div>
+
+      <div v-else-if="s.enabled" class="stage-params">
+        <div v-for="p in getParams(s.stageId, s.algorithm)" :key="p.key" class="param-row">
+          <template v-if="p.type === 'color'">
+            <div class="slider-header">
+              <span>{{ p.label }}</span>
+            </div>
+            <input
+              type="color"
+              :value="String(s.params[p.key] ?? p.default)"
+              @input="emitColor(s.stageId, p.key, ($event.target as HTMLInputElement).value)"
+            />
+          </template>
+          <template v-else>
+            <div class="slider-header">
+              <span>{{ p.label }}</span>
+              <span>{{ formatVal(s.params[p.key], p.step) }}</span>
+            </div>
+            <input
+              type="range"
+              :min="p.min"
+              :max="p.max"
+              :step="p.step"
+              :value="s.params[p.key] ?? p.default"
+              @input="emitRange(s.stageId, p.key, ($event.target as HTMLInputElement).valueAsNumber)"
+            />
+          </template>
         </div>
       </div>
     </div>
@@ -80,6 +141,7 @@ const STAGE_LABELS: Record<StageId, string> = {
   preprocess: 'Preprocess',
   scale: 'Scale',
   palette: 'Palette',
+  'palette-post': 'Palette Post',
   quantize: 'Quantize',
   block: 'Block',
   dither: 'Dither',
@@ -93,6 +155,8 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
     { id: 'box-blur', label: 'Box Blur' },
     { id: 'sharpen', label: 'Sharpen' },
     { id: 'bcs', label: 'BCS' },
+    { id: 'erode', label: 'Erode' },
+    { id: 'bilateral', label: 'Bilateral Filter' },
   ],
   scale: [
     { id: 'nearest', label: 'Nearest' },
@@ -103,6 +167,11 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
   palette: [
     { id: 'fixed', label: 'Fixed' },
     { id: 'median-cut', label: 'Median Cut' },
+    { id: 'wu', label: "Wu's Quantization" },
+  ],
+  'palette-post': [
+    { id: 'none', label: 'None' },
+    { id: 'split-toning', label: 'Split Toning' },
   ],
   quantize: [
     { id: 'nearest-lab', label: 'Nearest Lab' },
@@ -119,6 +188,7 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
     { id: 'bayer-2x2', label: 'Bayer 2\u00d72' },
     { id: 'bayer-4x4', label: 'Bayer 4\u00d74' },
     { id: 'bayer-8x8', label: 'Bayer 8\u00d78' },
+    { id: 'blue-noise', label: 'Blue Noise' },
   ],
 }
 
@@ -133,10 +203,11 @@ const POSTFX_ITEMS: { key: string; label: string }[] = [
 interface ParamInfo {
   key: string
   label: string
+  type?: 'range' | 'color'
   min: number
   max: number
   step: number
-  default: number
+  default: number | string
 }
 
 const ALGO_PARAMS: Record<string, ParamInfo[]> = {
@@ -154,6 +225,13 @@ const ALGO_PARAMS: Record<string, ParamInfo[]> = {
   'palette:median-cut': [
     { key: 'colors', label: 'Colors', min: 2, max: 64, step: 1, default: 16 },
   ],
+  'palette-post:split-toning': [
+    { key: 'shadowColor', label: 'Shadow', type: 'color', min: 0, max: 0, step: 0, default: '#6644aa' },
+    { key: 'shadowStrength', label: 'Shadow Strength', min: 0, max: 1, step: 0.01, default: 0 },
+    { key: 'highlightColor', label: 'Highlight', type: 'color', min: 0, max: 0, step: 0, default: '#ffdd88' },
+    { key: 'highlightStrength', label: 'Highlight Strength', min: 0, max: 1, step: 0.01, default: 0 },
+    { key: 'midpoint', label: 'Midpoint', min: 0, max: 100, step: 1, default: 50 },
+  ],
   'block:tile-palette': [
     { key: 'blockSize', label: 'Block Size', min: 4, max: 32, step: 4, default: 4 },
     { key: 'maxColors', label: 'Max Colors', min: 2, max: 16, step: 1, default: 4 },
@@ -163,6 +241,33 @@ const ALGO_PARAMS: Record<string, ParamInfo[]> = {
   ],
   'dither:atkinson': [
     { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
+  ],
+  'preprocess:erode': [
+    { key: 'times', label: 'Times', min: 1, max: 3, step: 1, default: 1 },
+  ],
+  'preprocess:bilateral': [
+    { key: 'radius', label: 'Radius', min: 1, max: 5, step: 1, default: 2 },
+    { key: 'sigmaSpace', label: 'Sigma Space', min: 1, max: 30, step: 1, default: 10 },
+    { key: 'sigmaColor', label: 'Sigma Color', min: 5, max: 80, step: 5, default: 30 },
+  ],
+  'palette:wu': [
+    { key: 'colors', label: 'Colors', min: 2, max: 64, step: 1, default: 16 },
+  ],
+  'dither:bayer-2x2': [
+    { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
+    { key: 'threshold', label: 'Threshold', min: 0.1, max: 1, step: 0.05, default: 0.5 },
+  ],
+  'dither:bayer-4x4': [
+    { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
+    { key: 'threshold', label: 'Threshold', min: 0.1, max: 1, step: 0.05, default: 0.5 },
+  ],
+  'dither:bayer-8x8': [
+    { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
+    { key: 'threshold', label: 'Threshold', min: 0.1, max: 1, step: 0.05, default: 0.5 },
+  ],
+  'dither:blue-noise': [
+    { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
+    { key: 'threshold', label: 'Threshold', min: 0.1, max: 1, step: 0.05, default: 0.5 },
   ],
 }
 
@@ -174,18 +279,29 @@ function getParams(stageId: StageId, algoId: string): ParamInfo[] {
   return ALGO_PARAMS[algoKey(stageId, algoId)] ?? []
 }
 
-function getDefaultParams(stageId: StageId, algoId: string): Record<string, number> {
-  const params: Record<string, number> = {}
+function getDefaultParams(stageId: StageId, algoId: string): Record<string, number | string> {
+  const params: Record<string, number | string> = {}
   for (const p of getParams(stageId, algoId)) {
     params[p.key] = p.default
   }
   return params
 }
 
-function formatVal(value: string | number | boolean | undefined, step: number): string {
+function formatVal(value: string | number | boolean | undefined, step?: number): string {
+  if (typeof value === 'string') return value
   const n = Number(value)
   if (Number.isNaN(n)) return String(value ?? '')
-  return step >= 1 ? String(n) : n.toFixed(step < 0.1 ? 2 : 1)
+  return (step ?? 1) >= 1 ? String(n) : n.toFixed((step ?? 0.1) < 0.1 ? 2 : 1)
+}
+
+function emitRange(stageId: StageId, key: string, value: number) {
+  const stage = props.stages.find(s => s.stageId === stageId)!
+  emit('update:stage', stageId, { params: { ...stage.params, [key]: value } })
+}
+
+function emitColor(stageId: StageId, key: string, value: string) {
+  const stage = props.stages.find(s => s.stageId === stageId)!
+  emit('update:stage', stageId, { params: { ...stage.params, [key]: value } })
 }
 
 function onToggle(stageId: StageId, checked: boolean) {
@@ -201,12 +317,6 @@ function onAlgoChange(stageId: StageId, algoId: string) {
   emit('update:stage', stageId, {
     algorithm: algoId,
     params: getDefaultParams(stageId, algoId),
-  })
-}
-
-function onParamChange(stageId: StageId, currentParams: StageNode['params'], p: ParamInfo, value: number) {
-  emit('update:stage', stageId, {
-    params: { ...currentParams, [p.key]: value },
   })
 }
 
@@ -344,5 +454,36 @@ input[type='range'] {
 .fx-check input[type='checkbox'] {
   cursor: pointer;
   accent-color: #000080;
+}
+
+.toning-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toning-label {
+  font-size: 10px;
+  min-width: 52px;
+}
+
+.toning-color {
+  width: 28px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+}
+
+.toning-slider {
+  flex: 1;
+  min-width: 0;
+}
+
+.toning-val {
+  font-size: 9px;
+  min-width: 28px;
+  text-align: right;
 }
 </style>

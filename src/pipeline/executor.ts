@@ -2,6 +2,7 @@ import type { StageNode, StageId } from './types'
 import { preprocessAlgorithms } from './stages/preprocess'
 import { scaleAlgorithms } from './stages/scale'
 import { paletteAlgorithms } from './stages/palette'
+import { palettePostAlgorithms } from './stages/palettePost'
 import { quantizeAlgorithms } from './stages/quantize'
 import { ditherAlgorithms } from './stages/dither'
 import { blockAlgorithms } from './stages/block'
@@ -9,7 +10,7 @@ import { rgbToLab } from './stages/shared'
 
 type RGB = [number, number, number]
 
-const STAGE_ORDER: StageId[] = ['scale', 'preprocess', 'palette', 'quantize', 'block', 'dither']
+const STAGE_ORDER: StageId[] = ['scale', 'preprocess', 'palette', 'palette-post', 'quantize', 'block', 'dither']
 
 const ALGO_MAP: Record<StageId, Record<string, Function>> = {
   preprocess: preprocessAlgorithms,
@@ -17,6 +18,7 @@ const ALGO_MAP: Record<StageId, Record<string, Function>> = {
   palette: paletteAlgorithms,
   quantize: quantizeAlgorithms,
   dither: ditherAlgorithms,
+  'palette-post': palettePostAlgorithms,
   block: blockAlgorithms,
   postfx: {},
 }
@@ -68,7 +70,7 @@ export async function executePipeline(
   }
 
   const paletteStage = stageMap.get('palette')
-  if (paletteStage?.enabled && paletteStage.algorithm === 'median-cut') {
+  if (paletteStage?.enabled && (paletteStage.algorithm === 'median-cut' || paletteStage.algorithm === 'wu')) {
     const fn = paletteAlgorithms[paletteStage.algorithm]
     if (fn) {
       const generated = fn(id, pw, ph, paletteStage.params as Record<string, number>)
@@ -77,6 +79,24 @@ export async function executePipeline(
         palette.push(...generated)
         paletteLab.length = 0
         paletteLab.push(...generated.map(c => rgbToLab(c[0], c[1], c[2])))
+      }
+    }
+  }
+
+  const palettePostStage = stages.find(s => s.stageId === 'palette-post')
+  console.log('palette-post stage:', palettePostStage)
+  if (palettePostStage?.enabled && palettePostStage.algorithm !== 'none') {
+    const fn = palettePostAlgorithms[palettePostStage.algorithm]
+    console.log('palette-post fn:', fn)
+    console.log('palette before:', JSON.stringify(palette.slice(0, 3)))
+    if (fn) {
+      const modified = fn(palette, palettePostStage.params as Record<string, number | string>)
+      console.log('palette after:', JSON.stringify(modified.slice(0, 3)))
+      if (modified && modified.length > 0) {
+        palette.length = 0
+        palette.push(...modified)
+        paletteLab.length = 0
+        paletteLab.push(...modified.map(c => rgbToLab(c[0], c[1], c[2])))
       }
     }
   }

@@ -1,4 +1,4 @@
-type RGB = [number, number, number]
+import type { RGB } from '@/types'
 
 type PaletteFn = (
   imgData: ImageData,
@@ -90,7 +90,123 @@ function medianCutPalette(
   return result
 }
 
+function wuQuantize(
+  imgData: ImageData,
+  _w: number,
+  _h: number,
+  params: Record<string, number>,
+): RGB[] {
+  const colorCount = Math.max(2, Math.min(256, params['colors'] ?? 16))
+  const d = imgData.data
+  const SIDE = 32
+  const SHIFT = 3
+
+  const size = SIDE * SIDE * SIDE
+  const weight = new Int32Array(size)
+  const sumR = new Int32Array(size)
+  const sumG = new Int32Array(size)
+  const sumB = new Int32Array(size)
+
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i + 3]! < 30) continue
+    const r = d[i]! >> SHIFT
+    const g = d[i + 1]! >> SHIFT
+    const b = d[i + 2]! >> SHIFT
+    const idx = r * SIDE * SIDE + g * SIDE + b
+    weight[idx]++
+    sumR[idx]! += d[i]!
+    sumG[idx]! += d[i + 1]!
+    sumB[idx]! += d[i + 2]!
+  }
+
+  type Box = [number, number, number, number, number, number]
+
+  function boxVolume([r0, r1, g0, g1, b0, b1]: Box): number {
+    return (r1 - r0) * (g1 - g0) * (b1 - b0)
+  }
+
+  function boxStats(box: Box): { count: number; r: number; g: number; b: number } {
+    const [r0, r1, g0, g1, b0, b1] = box
+    let count = 0, tr = 0, tg = 0, tb = 0
+    for (let r = r0; r < r1; r++)
+      for (let g = g0; g < g1; g++)
+        for (let b = b0; b < b1; b++) {
+          const idx = r * SIDE * SIDE + g * SIDE + b
+          count += weight[idx]!
+          tr += sumR[idx]!; tg += sumG[idx]!; tb += sumB[idx]!
+        }
+    return { count, r: tr, g: tg, b: tb }
+  }
+
+  function variance(box: Box): number {
+    const [r0, r1, g0, g1, b0, b1] = box
+    let count = 0, sr = 0, sg = 0, sb = 0, sr2 = 0, sg2 = 0, sb2 = 0
+    for (let r = r0; r < r1; r++)
+      for (let g = g0; g < g1; g++)
+        for (let b = b0; b < b1; b++) {
+          const idx = r * SIDE * SIDE + g * SIDE + b
+          const w = weight[idx]!
+          if (w === 0) continue
+          const mr = sumR[idx]! / w, mg = sumG[idx]! / w, mb = sumB[idx]! / w
+          count += w; sr += mr * w; sg += mg * w; sb += mb * w
+          sr2 += mr * mr * w; sg2 += mg * mg * w; sb2 += mb * mb * w
+        }
+    if (count === 0) return 0
+    return (sr2 - sr * sr / count) + (sg2 - sg * sg / count) + (sb2 - sb * sb / count)
+  }
+
+  function splitBox(box: Box): [Box, Box] | null {
+    const [r0, r1, g0, g1, b0, b1] = box
+    let bestVar = -1, bestAxis = 0, bestSplit = 0
+    for (let axis = 0; axis < 3; axis++) {
+      const lo = axis === 0 ? r0 : axis === 1 ? g0 : b0
+      const hi = axis === 0 ? r1 : axis === 1 ? g1 : b1
+      for (let split = lo + 1; split < hi; split++) {
+        const boxA: Box = axis === 0 ? [r0, split, g0, g1, b0, b1]
+                        : axis === 1 ? [r0, r1, g0, split, b0, b1]
+                        :              [r0, r1, g0, g1, b0, split]
+        const boxB: Box = axis === 0 ? [split, r1, g0, g1, b0, b1]
+                        : axis === 1 ? [r0, r1, split, g1, b0, b1]
+                        :              [r0, r1, g0, g1, split, b1]
+        const v = variance(boxA) + variance(boxB)
+        if (v > bestVar) { bestVar = v; bestAxis = axis; bestSplit = split }
+      }
+    }
+    if (bestSplit === 0) return null
+    const a: Box = bestAxis === 0 ? [r0, bestSplit, g0, g1, b0, b1]
+                 : bestAxis === 1 ? [r0, r1, g0, bestSplit, b0, b1]
+                 :                  [r0, r1, g0, g1, b0, bestSplit]
+    const b: Box = bestAxis === 0 ? [bestSplit, r1, g0, g1, b0, b1]
+                 : bestAxis === 1 ? [r0, r1, bestSplit, g1, b0, b1]
+                 :                  [r0, r1, g0, g1, bestSplit, b1]
+    return [a, b]
+  }
+
+  let boxes: Box[] = [[0, SIDE, 0, SIDE, 0, SIDE]]
+  while (boxes.length < colorCount) {
+    let bestIdx = -1, bestVar = -1
+    for (let i = 0; i < boxes.length; i++) {
+      if (boxVolume(boxes[i]!) <= 1) continue
+      const v = variance(boxes[i]!)
+      if (v > bestVar) { bestVar = v; bestIdx = i }
+    }
+    if (bestIdx === -1) break
+    const split = splitBox(boxes[bestIdx]!)
+    if (!split) break
+    boxes.splice(bestIdx, 1, split[0], split[1])
+  }
+
+  const result: RGB[] = []
+  for (const box of boxes) {
+    const { count, r, g, b } = boxStats(box)
+    if (count === 0) continue
+    result.push([Math.round(r / count), Math.round(g / count), Math.round(b / count)])
+  }
+  return result
+}
+
 export const paletteAlgorithms: Record<string, PaletteFn> = {
   'fixed': fixedPalette,
   'median-cut': medianCutPalette,
+  'wu': wuQuantize,
 }

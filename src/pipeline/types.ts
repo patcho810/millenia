@@ -1,4 +1,4 @@
-export type StageId = 'preprocess' | 'scale' | 'palette' | 'quantize' | 'dither' | 'block' | 'postfx'
+export type StageId = 'preprocess' | 'scale' | 'palette' | 'palette-post' | 'quantize' | 'dither' | 'block' | 'postfx'
 
 export interface StageNode {
   stageId: StageId
@@ -26,7 +26,7 @@ export interface AlgorithmDef {
 export interface ParamDef {
   key: string
   label: string
-  type: 'range' | 'boolean' | 'select'
+  type: 'range' | 'boolean' | 'select' | 'color'
   min?: number
   max?: number
   step?: number

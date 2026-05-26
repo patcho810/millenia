@@ -32,3 +32,104 @@ Millenia 是一个复古风格像素画转换器，基于 Vue 3 + TypeScript + V
 - 支持自定义调色板创建/编辑
 - 支持拖拽、文件选择、剪贴板粘贴加载图片
 - PNG 下载导出
+
+---
+
+## 2026-05-17 — 管线重构 + Palette Post（Split Toning）阶段
+
+### 架构升级
+将原有单体 `usePixelConverter.ts` 重构为模块化管线系统，src/pipeline/ 下按阶段拆分：
+
+```
+src/pipeline/
+├── types.ts              # StageId 联合类型、StageNode、AlgorithmDef、ParamDef
+├── registry.ts           # ALGORITHM_REGISTRY — 所有阶段/算法/参数定义集中注册
+├── executor.ts           # executePipeline() — 按 STAGE_ORDER 顺序编排执行
+└── stages/
+    ├── preprocess.ts     # 预处理（Gaussian Blur / Box Blur / Sharpen / BCS / Erode）
+    ├── scale.ts          # 缩放（Nearest / Bilinear / Bicubic / Lanczos）
+    ├── palette.ts        # 调色板（Fixed / Median Cut）
+    ├── palettePost.ts    # ★ 新增：调色板后处理
+    ├── quantize.ts       # 颜色量化（Nearest CIELAB / Nearest RGB）
+    ├── dither.ts         # 抖动（Floyd-Steinberg / Atkinson / Bayer 2x2/4x4/8x8）
+    ├── block.ts          # 分块限色（Tile Palette）
+    ├── postfx.ts         # 后处理特效
+    └── shared.ts         # 共享函数（rgbToLab 等）
+```
+
+### 执行顺序
+```
+scale → preprocess → palette(生成) → palette-post → quantize → block → dither
+```
+
+### Palette Post（Split Toning / 影调分离）— 新增阶段
+
+**阶段 ID**: `'palette-post'`
+
+**接口签名**:
+```ts
+type PalettePostFn = (palette: RGB[], params: Record<string, number | string>) => RGB[]
+```
+
+**算法: split-toning（目标色 + 强度插值）**
+
+对调色板中每个颜色转换到 HSL（H: 0-360, S: 0-1, L: 0-100），按亮度分为暗部/亮部：
+
+| 区域 | 插值逻辑 |
+|------|----------|
+| **暗部**（L < midpoint） | hue/sat 向 `shadowColor` 插值，比例 = `shadowStrength × (1 - L/midpoint)` |
+| **亮部**（L ≥ midpoint） | hue/sat 向 `highlightColor` 插值，比例 = `highlightStrength × (L-midpoint)/(100-midpoint)` |
+
+- 亮度（L）保持不变，仅修改色相和饱和度
+- 色相插值使用圆形最短路径（`lerpHue`），避免跨 0°/360° 边界跳变
+- 线性过渡，无硬切
+
+**参数**:
+
+| 参数 | 类型 | 默认值 | 范围 | 说明 |
+|------|------|--------|------|------|
+| `shadowColor` | color (hex) | `#6644aa` | — | 暗部目标色 |
+| `shadowStrength` | range | 0 | 0–1 | 暗部插值强度 |
+| `highlightColor` | color (hex) | `#ffdd88` | — | 亮部目标色 |
+| `highlightStrength` | range | 0 | 0–1 | 亮部插值强度 |
+| `midpoint` | range | 50 | 0–100 | 明暗分界线（对应 L 值） |
+
+**算法 `none`**：空操作，直接返回原 palette。
+
+**辅助函数（模块内私有）**:
+- `hexToRgb(hex)` — 6 位 hex → `[R, G, B]`
+- `rgbToHsl(r, g, b)` — → `[H(0-360), S(0-1), L(0-100)]`
+- `hslToRgb(h, s, l)` — → `[R, G, B]`
+- `lerpHue(from, to, t)` — 色相圆形插值
+
+### 涉及文件变更
+
+| 文件 | 变更 |
+|------|------|
+| `src/pipeline/types.ts` | `StageId` 加入 `'palette-post'`；`ParamDef.type` 加入 `'color'` |
+| `src/pipeline/stages/palettePost.ts` | **新建** — `none` + `split-toning` 算法实现 |
+| `src/pipeline/registry.ts` | 注册 `palette-post` 阶段，含完整 `paramDefs` |
+| `src/pipeline/executor.ts` | 在 palette 生成后、quantize 前插入 palette-post 执行段 |
+| `src/pipeline/stages/palette.ts` | 确认 RGB 从 `@/types` 导入 |
+| `src/composables/usePipeline.ts` | 默认 stages 加入 `palette-post`；`updateStage()` 自动触发 `reconvert` |
+| `src/components/PipelineControl.vue` | 新增 Palette Post UI：algorithm 下拉（None/Split Toning）+ 5 参数编辑 |
+
+### PipelineControl.vue UI 变更
+- 新增 `'palette-post'` 栏位，位于 Palette 和 Quantize 之间
+- `ParamInfo` 接口新增 `type?: 'range' | 'color'` 字段
+- `formatVal` 支持 string 类型值
+- 新增 `emitRange()` / `emitColor()` 替代原有 `onParamChange()`
+- Split Toning 专用布局：
+  - Shadow 行：`[color picker]` + `[strength slider]` + 数值
+  - Highlight 行：`[color picker]` + `[strength slider]` + 数值
+  - Midpoint 行：单独的 `[slider]`
+- 通用 param 循环支持 `type === 'color'` 渲染 color input
+
+### 调试验证
+- palette-post 数据流正确：params → splitToning → 新 RGB 数组 → 原地替换 palette → 传给 quantize
+- shadowStrength=0.51 + shadowColor=#6644aa 作用下，第一个颜色从 `[23,48,25]` 变为 `[22,49,47]`（深绿色 → 青绿色），H 从 124.8° 偏移至 174.6°
+
+### 当前管线状态
+```
+加载图片 → scale → preprocess → palette(生成) → palette-post → quantize → block → dither → 放大 → postfx → 输出
+```
