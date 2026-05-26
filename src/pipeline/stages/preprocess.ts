@@ -127,6 +127,73 @@ function bilateralFilter(imgData: ImageData, w: number, h: number, params: Recor
   }
 }
 
+function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+  const rf = r / 255, gf = g / 255, bf = b / 255
+  const max = Math.max(rf, gf, bf), min = Math.min(rf, gf, bf)
+  const d = max - min
+  let h = 0, s = 0
+  const l = (max + min) / 2
+  if (d !== 0) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    if (max === rf) h = ((gf - bf) / d + (gf < bf ? 6 : 0)) * 60
+    else if (max === gf) h = ((bf - rf) / d + 2) * 60
+    else h = ((rf - gf) / d + 4) * 60
+  }
+  return [h, s, l]
+}
+
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  if (s === 0) {
+    const v = Math.round(l * 255)
+    return [v, v, v]
+  }
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+  const p = 2 * l - q
+  const hue2rgb = (t: number): number => {
+    if (t < 0) t += 1
+    if (t > 1) t -= 1
+    if (t < 1/6) return p + (q - p) * 6 * t
+    if (t < 1/2) return q
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6
+    return p
+  }
+  const h1 = (h % 360 + 360) % 360 / 360
+  return [
+    Math.round(hue2rgb(h1 + 1/3) * 255),
+    Math.round(hue2rgb(h1) * 255),
+    Math.round(hue2rgb(h1 - 1/3) * 255),
+  ]
+}
+
+function hslShift(imgData: ImageData, _w: number, _h: number, params: Record<string, number>) {
+  const segments = ['r', 'y', 'g', 'c', 'b', 'm']
+  const d = imgData.data
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i + 3]! < 30) continue
+    const r = d[i]!, g = d[i + 1]!, b = d[i + 2]!
+    let [h, s, l] = rgbToHsl(r, g, b)
+
+    let seg: string
+    if (h < 30 || h >= 330) seg = 'r'
+    else if (h < 90) seg = 'y'
+    else if (h < 150) seg = 'g'
+    else if (h < 210) seg = 'c'
+    else if (h < 270) seg = 'b'
+    else seg = 'm'
+
+    const hOff = params[`hsl_${seg}_hue`] ?? 0
+    const sOff = params[`hsl_${seg}_sat`] ?? 0
+    const lOff = params[`hsl_${seg}_lum`] ?? 0
+
+    h = ((h + hOff) % 360 + 360) % 360
+    s = Math.max(0, Math.min(1, s + sOff))
+    l = Math.max(0, Math.min(1, l + lOff / 100))
+
+    const [nr, ng, nb] = hslToRgb(h, s, l)
+    d[i] = nr; d[i + 1] = ng; d[i + 2] = nb
+  }
+}
+
 export const preprocessAlgorithms: Record<string, PreprocessFn> = {
   'none': none,
   'gaussian-blur': gaussianBlur,
@@ -135,4 +202,5 @@ export const preprocessAlgorithms: Record<string, PreprocessFn> = {
   'bcs': bcs,
   'erode': erode,
   'bilateral': bilateralFilter,
+  'hsl-shift': hslShift,
 }

@@ -30,18 +30,45 @@
         <div v-for="a in preprocessAlgos" :key="'p-'+a.id">
           <template v-if="preprocessActive.has(a.id) && getAlgoParams('preprocess', a.id).length > 0">
             <p class="pre-algo-title">{{ a.label }}</p>
-            <div v-for="p in getAlgoParams('preprocess', a.id)" :key="p.key" class="param-row">
-              <div class="slider-header">
-                <span>{{ p.label }}</span>
-                <span>{{ formatVal(preprocessAlgoParam(a.id, p.key), p.step) }}</span>
+            <template v-if="a.id === 'hsl-shift'">
+              <div class="hsl-tabs">
+                <button
+                  v-for="t in HSL_TABS" :key="t.key"
+                  class="hsl-tab"
+                  :class="{ active: hslActiveTab === t.key }"
+                  :style="{ background: hslActiveTab === t.key ? t.color : t.bg, color: hslActiveTab === t.key ? '#fff' : '#000' }"
+                  @click="hslActiveTab = t.key"
+                >{{ t.label }}</button>
               </div>
-              <input
-                type="range"
-                :min="p.min" :max="p.max" :step="p.step"
-                :value="preprocessAlgoParam(a.id, p.key) ?? p.default"
-                @input="onPreAlgoParam(a.id, p.key, ($event.target as HTMLInputElement).valueAsNumber)"
-              />
-            </div>
+              <div v-for="t in HSL_TABS" :key="'tab-'+t.key">
+                <template v-if="hslActiveTab === t.key">
+                  <div class="param-row" v-for="p in getAlgoParams('preprocess', 'hsl-shift').filter(p => p.key.startsWith('hsl_'+t.key+'_'))" :key="p.key">
+                    <div class="slider-header">
+                      <span>{{ p.label }}</span>
+                      <span>{{ formatVal(preprocessAlgoParam('hsl-shift', p.key), p.step) }}</span>
+                    </div>
+                    <input type="range" :min="p.min" :max="p.max" :step="p.step"
+                      :value="preprocessAlgoParam('hsl-shift', p.key) ?? p.default"
+                      @input="onPreAlgoParam('hsl-shift', p.key, ($event.target as HTMLInputElement).valueAsNumber)"
+                    />
+                  </div>
+                </template>
+              </div>
+            </template>
+            <template v-else>
+              <div v-for="p in getAlgoParams('preprocess', a.id)" :key="p.key" class="param-row">
+                <div class="slider-header">
+                  <span>{{ p.label }}</span>
+                  <span>{{ formatVal(preprocessAlgoParam(a.id, p.key), p.step) }}</span>
+                </div>
+                <input
+                  type="range"
+                  :min="p.min" :max="p.max" :step="p.step"
+                  :value="preprocessAlgoParam(a.id, p.key) ?? p.default"
+                  @input="onPreAlgoParam(a.id, p.key, ($event.target as HTMLInputElement).valueAsNumber)"
+                />
+              </div>
+            </template>
           </template>
         </div>
       </div>
@@ -231,7 +258,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue'
+import { computed, watch, onMounted, ref } from 'vue'
 import type { StageNode, StageId } from '@/pipeline/types'
 import type { PaletteMap } from '@/types'
 
@@ -270,6 +297,7 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
     { id: 'bcs', label: 'BCS' },
     { id: 'erode', label: 'Erode' },
     { id: 'bilateral', label: 'Bilateral Filter' },
+    { id: 'hsl-shift', label: 'HSL Shift' },
   ],
   scale: [
     { id: 'nearest', label: 'Nearest' },
@@ -362,6 +390,26 @@ const ALGO_PARAMS: Record<string, ParamInfo[]> = {
     { key: 'sigmaSpace', label: 'Sigma Space', min: 1, max: 30, step: 1, default: 10 },
     { key: 'sigmaColor', label: 'Sigma Color', min: 5, max: 80, step: 5, default: 30 },
   ],
+  'preprocess:hsl-shift': [
+    { key: 'hsl_r_hue', label: 'Hue Red °', min: -60, max: 60, step: 1, default: 0 },
+    { key: 'hsl_r_sat', label: 'Sat Red', min: -1, max: 1, step: 0.05, default: 0 },
+    { key: 'hsl_r_lum', label: 'Lum Red', min: -50, max: 50, step: 1, default: 0 },
+    { key: 'hsl_y_hue', label: 'Hue Yellow °', min: -60, max: 60, step: 1, default: 0 },
+    { key: 'hsl_y_sat', label: 'Sat Yellow', min: -1, max: 1, step: 0.05, default: 0 },
+    { key: 'hsl_y_lum', label: 'Lum Yellow', min: -50, max: 50, step: 1, default: 0 },
+    { key: 'hsl_g_hue', label: 'Hue Green °', min: -60, max: 60, step: 1, default: 0 },
+    { key: 'hsl_g_sat', label: 'Sat Green', min: -1, max: 1, step: 0.05, default: 0 },
+    { key: 'hsl_g_lum', label: 'Lum Green', min: -50, max: 50, step: 1, default: 0 },
+    { key: 'hsl_c_hue', label: 'Hue Cyan °', min: -60, max: 60, step: 1, default: 0 },
+    { key: 'hsl_c_sat', label: 'Sat Cyan', min: -1, max: 1, step: 0.05, default: 0 },
+    { key: 'hsl_c_lum', label: 'Lum Cyan', min: -50, max: 50, step: 1, default: 0 },
+    { key: 'hsl_b_hue', label: 'Hue Blue °', min: -60, max: 60, step: 1, default: 0 },
+    { key: 'hsl_b_sat', label: 'Sat Blue', min: -1, max: 1, step: 0.05, default: 0 },
+    { key: 'hsl_b_lum', label: 'Lum Blue', min: -50, max: 50, step: 1, default: 0 },
+    { key: 'hsl_m_hue', label: 'Hue Magenta °', min: -60, max: 60, step: 1, default: 0 },
+    { key: 'hsl_m_sat', label: 'Sat Magenta', min: -1, max: 1, step: 0.05, default: 0 },
+    { key: 'hsl_m_lum', label: 'Lum Magenta', min: -50, max: 50, step: 1, default: 0 },
+  ],
   'palette:wu': [
     { key: 'colors', label: 'Colors', min: 2, max: 64, step: 1, default: 16 },
   ],
@@ -430,6 +478,16 @@ function onAlgoChange(stageId: StageId, algoId: string) {
 // --- preprocess multi ---
 
 const preprocessAlgos = ALGOS['preprocess'].filter(a => a.id !== 'none')
+
+const HSL_TABS = [
+  { key: 'r', label: 'R', color: '#cc3333', bg: '#ffeeee' },
+  { key: 'y', label: 'Y', color: '#ccaa00', bg: '#fff8e0' },
+  { key: 'g', label: 'G', color: '#33aa33', bg: '#eeffee' },
+  { key: 'c', label: 'C', color: '#339999', bg: '#eef8f8' },
+  { key: 'b', label: 'B', color: '#3355cc', bg: '#eeeeff' },
+  { key: 'm', label: 'M', color: '#aa33aa', bg: '#ffeeff' },
+]
+const hslActiveTab = ref('r')
 
 const preprocessActive = computed(() => {
   const s = props.stages.find(s => s.stageId === 'preprocess')
@@ -595,6 +653,26 @@ input[type='range'] {
   font-weight: bold;
   color: #000080;
   margin: 2px 0 1px;
+}
+
+.hsl-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.hsl-tab {
+  flex: 1;
+  border: none;
+  padding: 3px 0;
+  font-family: var(--font);
+  font-size: 10px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: var(--shadow-border);
+  transition: none;
+}
+.hsl-tab.active {
+  box-shadow: var(--shadow-in);
 }
 
 .postfx-checks {
