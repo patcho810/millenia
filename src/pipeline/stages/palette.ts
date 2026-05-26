@@ -113,7 +113,7 @@ function wuQuantize(
     const g = d[i + 1]! >> SHIFT
     const b = d[i + 2]! >> SHIFT
     const idx = r * SIDE * SIDE + g * SIDE + b
-    weight[idx]++
+    weight[idx]!++
     sumR[idx]! += d[i]!
     sumG[idx]! += d[i + 1]!
     sumB[idx]! += d[i + 2]!
