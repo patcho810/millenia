@@ -47,9 +47,16 @@ export function usePipeline() {
   let canvasCache: HTMLCanvasElement | null = null
 
   function updateStage(stageId: StageId, patch: Partial<StageNode>) {
-    stages.value = stages.value.map(s =>
-      s.stageId === stageId ? { ...s, ...patch } : s
-    )
+    stages.value = stages.value.map(s => {
+      if (s.stageId !== stageId) return s
+      const merged = { ...s, ...patch }
+      if (patch.params) {
+        merged.params = 'algorithm' in patch
+          ? { ...patch.params }
+          : { ...s.params, ...patch.params }
+      }
+      return merged
+    })
     if (canvasCache) reconvert(canvasCache)
   }
 

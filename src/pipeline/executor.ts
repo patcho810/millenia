@@ -65,8 +65,26 @@ export async function executePipeline(
 
   const preprocessStage = stageMap.get('preprocess')
   if (preprocessStage?.enabled) {
-    const fn = ALGO_MAP.preprocess[preprocessStage.algorithm]
-    if (fn) fn(id, pw, ph, preprocessStage.params)
+    const algos = (preprocessStage.params['algorithms'] as string | undefined)?.split(',').filter(Boolean)
+    if (algos && algos.length > 0) {
+      for (const algoId of algos) {
+        if (algoId === 'none') continue
+        const fn = ALGO_MAP.preprocess[algoId]
+        if (fn) {
+          const algoParams: Record<string, number> = {}
+          const prefix = `algo_${algoId}_`
+          for (const [k, v] of Object.entries(preprocessStage.params)) {
+            if (k.startsWith(prefix) && typeof v === 'number') {
+              algoParams[k.slice(prefix.length)] = v
+            }
+          }
+          fn(id, pw, ph, algoParams)
+        }
+      }
+    } else {
+      const fn = ALGO_MAP.preprocess[preprocessStage.algorithm]
+      if (fn) fn(id, pw, ph, preprocessStage.params)
+    }
   }
 
   const paletteStage = stageMap.get('palette')

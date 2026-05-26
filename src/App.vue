@@ -7,9 +7,11 @@
           <PipelineControl
             :stages="converter.stages.value"
             :display-pixel-size="converter.displayPixelSize.value"
+            :palette-key="converter.paletteKey.value"
+            :palettes="converter.palettes"
             @update:display-pixel-size="converter.displayPixelSize.value = $event; converter.reconvert(getCanvas())"
             @update:stage="(stageId, patch) => { converter.updateStage(stageId, patch); converter.reconvert(getCanvas()) }"
-            @palette-adaptive="paletteAdaptive = $event"
+            @update:palette-key="converter.paletteKey.value = $event; converter.reconvert(getCanvas())"
           />
           <!--
           <AdjustControl
@@ -35,7 +37,7 @@
           <PalettePanel
             :palettes="converter.palettes"
             v-model="converter.paletteKey.value"
-            :disabled="paletteAdaptive"
+            :disabled="false"
             @update:model-value="converter.reconvert(getCanvas())"
             @open-custom="openCustomModal()"
           />
@@ -85,7 +87,6 @@ import StylePresets from '@/components/StylePresets.vue'
 const converter = usePipeline()
 const previewRef = ref<InstanceType<typeof PreviewPanel> | null>(null)
 const presets = BUILTIN_PRESETS
-const paletteAdaptive = ref(false)
 
 function getCanvas(): HTMLCanvasElement {
   return previewRef.value!.canvasRef!
