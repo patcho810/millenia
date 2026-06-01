@@ -11,7 +11,6 @@ type DitherFn = (
   paletteLab?: [number, number, number][],
 ) => void
 
-const BAYER_2X2 = [[0, 2], [3, 1]]
 const BAYER_4X4 = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]
 const BAYER_8X8 = [
   [0, 32, 8, 40, 2, 34, 10, 42],
@@ -135,13 +134,6 @@ function bayerDither(
     }
 }
 
-function bayer2x2(
-  imgData: ImageData, w: number, h: number,
-  palette: RGB[], params: Record<string, number>, paletteLab?: [number, number, number][],
-) {
-  bayerDither(imgData, w, h, palette, params, BAYER_2X2, paletteLab)
-}
-
 function bayer4x4(
   imgData: ImageData, w: number, h: number,
   palette: RGB[], params: Record<string, number>, paletteLab?: [number, number, number][],
@@ -160,7 +152,6 @@ export const ditherAlgorithms: Record<string, DitherFn> = {
   'none': none as DitherFn,
   'floyd-steinberg': floydSteinberg,
   'atkinson': atkinson,
-  'bayer-2x2': bayer2x2,
   'bayer-4x4': bayer4x4,
   'bayer-8x8': bayer8x8,
 }

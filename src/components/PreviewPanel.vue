@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import {ref, watch, onMounted} from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import WinFrame from './WinFrame.vue'
+import { downloadCanvas } from '@/composables/useShortcuts'
 
 const props = defineProps<{
     hasImage: boolean
     isProcessing: boolean
     pixelSize: number
     paletteName: string
+    compareMode: boolean
+    sourceImageData: ImageData | null
+    baseImageData: ImageData | null
 }>()
 
 const emit = defineEmits<{
     fileLoaded: [file: File, canvas: HTMLCanvasElement]
+    toggleCompare: []
 }>()
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -20,6 +25,32 @@ const statusMsg = ref('拖放图片以开始')
 
 watch(() => props.isProcessing, (v) => {
     statusMsg.value = v ? '处理中...' : '就绪'
+})
+
+// Compare-mode visual: draw the cached source image directly into the canvas.
+// We only re-paint when the mode flips or the underlying source data changes,
+// so this stays O(canvas-size) rather than re-running the pipeline.
+watch(
+  [() => props.compareMode, () => props.sourceImageData, () => props.baseImageData, () => canvasRef.value],
+  () => {
+    if (!canvasRef.value) return
+    const c = canvasRef.value
+    const data = props.compareMode ? props.sourceImageData : props.baseImageData
+    if (!data) return
+    if (c.width !== data.width || c.height !== data.height) {
+      c.width = data.width
+      c.height = data.height
+    }
+    const ctx = c.getContext('2d')
+    if (ctx) ctx.putImageData(data, 0, 0)
+  },
+  { immediate: true },
+)
+
+const statusText = computed(() => {
+  if (props.isProcessing) return '处理中...'
+  if (props.compareMode) return '对比：显示原图（松开 Space 恢复）'
+  return '就绪'
 })
 
 function onDrop(e: DragEvent) {
@@ -39,11 +70,7 @@ function onFileChange(e:Event) {
 }
 
 function download() {
-    if (!canvasRef.value) return
-    const a = document.createElement('a')
-    a.download = 'pixel-art.png'
-    a.href = canvasRef.value.toDataURL('image/png')
-    a.click()
+    downloadCanvas(canvasRef.value)
 }
 
 onMounted(() => {
@@ -81,7 +108,7 @@ defineExpose({ canvasRef })
           @dragleave="dragging = false"
           @drop.prevent="onDrop"
           @click="onAreaClick"
-          :class="{ dragging }"
+          :class="{ dragging, comparing: compareMode }"
         >
             <div v-if="!hasImage" class="drop-hint">
                 拖放图片到此处<br>或点击选择文件
@@ -93,16 +120,23 @@ defineExpose({ canvasRef })
             />
             <div v-if="isProcessing" class="processing">
                 <span>PROCESSING...</span>
-            </div>  
+            </div>
+            <div v-if="compareMode && hasImage" class="compare-badge">原图</div>
         </div>
 
         <template #footer>
             <div class="actions">
                 <button class="action-btn" :disabled="!hasImage" @click="download">↓ 下载 PNG</button>
                 <button class="action-btn" @click="onAreaClick">打开图片</button>
+                <button
+                  class="action-btn"
+                  :class="{ active: compareMode }"
+                  :disabled="!hasImage"
+                  @click="$emit('toggleCompare')"
+                >👁 对比</button>
             </div>
             <div class="statusvar">
-                <span class="status-cell status-msg">{{ statusMsg }}</span>
+                <span class="status-cell status-msg">{{ statusText }}</span>
                 <span class="status-cell">{{ pixelSize }}px</span>
                 <span class="status-cell">{{ paletteName }}</span>
             </div>
@@ -140,6 +174,10 @@ defineExpose({ canvasRef })
   outline: 2px dashed #fff;
 }
 
+.canvas-area.comparing {
+  outline: 2px solid #ffaa00;
+}
+
 .drop-hint {
   color: #808080;
   text-align: center;
@@ -167,6 +205,20 @@ defineExpose({ canvasRef })
   z-index: 10;
 }
 
+.compare-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: #ffaa00;
+  color: #000;
+  font-size: 10px;
+  padding: 2px 6px;
+  letter-spacing: 1px;
+  box-shadow: 1px 1px 0 #000;
+  pointer-events: none;
+  z-index: 5;
+}
+
 .actions {
   padding: 4px 6px;
   display: flex;
@@ -184,6 +236,12 @@ defineExpose({ canvasRef })
   box-shadow: var(--shadow-out);
   color: #000;
   letter-spacing: 1px;
+}
+
+.action-btn.active {
+  background: #000080;
+  color: #fff;
+  box-shadow: var(--shadow-in);
 }
 
 .action-btn:active { box-shadow: var(--shadow-in); }

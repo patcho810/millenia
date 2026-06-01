@@ -23,6 +23,15 @@ const ALGO_MAP: Record<StageId, Record<string, Function>> = {
   postfx: {},
 }
 
+export interface PipelineResult {
+  /** The final, processed pixel data at the main canvas's resolution (sw × sh). */
+  processed: ImageData
+  /** The unprocessed downscaled source at small canvas resolution (pw × ph).
+   *  Captured BEFORE any pipeline stage runs, so it always reflects the raw
+   *  scaled-down source — used by C3 compare mode. */
+  source: ImageData
+}
+
 export async function executePipeline(
   sourceImg: HTMLImageElement,
   canvas: HTMLCanvasElement,
@@ -31,7 +40,7 @@ export async function executePipeline(
   paletteLab: [number, number, number][],
   displayPixelSize: number,
   maxDisplaySize: number = 600,
-): Promise<ImageData> {
+): Promise<PipelineResult> {
   const stageMap = new Map<StageId, StageNode>()
   for (const s of stages) stageMap.set(s.stageId, s)
 
@@ -62,6 +71,13 @@ export async function executePipeline(
 
   const sc = smallCanvas.getContext('2d')!
   const id = sc.getImageData(0, 0, pw, ph)
+  // Snapshot the downscaled source BEFORE any stage mutates `id`. This is what
+  // compare mode displays as the "original" — same scale as the pipeline input.
+  const sourceSnapshot = new ImageData(
+    new Uint8ClampedArray(id.data),
+    id.width,
+    id.height,
+  )
 
   const preprocessStage = stageMap.get('preprocess')
   if (preprocessStage?.enabled) {
@@ -102,14 +118,10 @@ export async function executePipeline(
   }
 
   const palettePostStage = stages.find(s => s.stageId === 'palette-post')
-  console.log('palette-post stage:', palettePostStage)
   if (palettePostStage?.enabled && palettePostStage.algorithm !== 'none') {
     const fn = palettePostAlgorithms[palettePostStage.algorithm]
-    console.log('palette-post fn:', fn)
-    console.log('palette before:', JSON.stringify(palette.slice(0, 3)))
     if (fn) {
       const modified = fn(palette, palettePostStage.params as Record<string, number | string>)
-      console.log('palette after:', JSON.stringify(modified.slice(0, 3)))
       if (modified && modified.length > 0) {
         palette.length = 0
         palette.push(...modified)
@@ -156,5 +168,8 @@ export async function executePipeline(
   ctx.clearRect(0, 0, sw, sh)
   ctx.drawImage(smallCanvas, 0, 0, sw, sh)
 
-  return ctx.getImageData(0, 0, sw, sh)
+  return {
+    processed: ctx.getImageData(0, 0, sw, sh),
+    source: sourceSnapshot,
+  }
 }

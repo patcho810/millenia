@@ -1,0 +1,1495 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "d62b2f7595f613b63dc43a0fe65c3cfc55cd0b14",
+  "generatedAt": "2026-05-31T13:10:51.987Z",
+  "files": {
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "87f5c1aff2d54c3fc9cf131e19cdf53b13ae8dd3104a49086261479c9c66a8fd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 42,
+      "hasStructuralAnalysis": false
+    },
+    ".understand-anything/config.json": {
+      "filePath": ".understand-anything/config.json",
+      "contentHash": "5381afa7f3062a95953409eda2001394091230b03bcf6ff6b2d2a685433f0d6b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "devlog/log.md": {
+      "filePath": "devlog/log.md",
+      "contentHash": "4815e4fc07921cec15d26f18cfde56da7c20650d44752e4b9e95cd47d2d524d7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 136,
+      "hasStructuralAnalysis": true
+    },
+    "devlog/structure.md": {
+      "filePath": "devlog/structure.md",
+      "contentHash": "7f6df02fb5d30154e4f8ecff579a5e644aff3d9fd9f4d77141f71bfb4a40f56b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 142,
+      "hasStructuralAnalysis": true
+    },
+    "devlog/todo.md": {
+      "filePath": "devlog/todo.md",
+      "contentHash": "20f4aaaa86d934323050ba599e2950b8359ef2655dce0a297e5d0fab7d618d5e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 139,
+      "hasStructuralAnalysis": true
+    },
+    "env.d.ts": {
+      "filePath": "env.d.ts",
+      "contentHash": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": true
+    },
+    "index.html": {
+      "filePath": "index.html",
+      "contentHash": "f2174e2a35991fdccb2a9f2c336d52c5f09244fa86ca7baaec523754d083a6ef",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 14,
+      "hasStructuralAnalysis": false
+    },
+    "package.json": {
+      "filePath": "package.json",
+      "contentHash": "91030bb39a04d067d500ce34708bfdc44980a3937569cd85622435d4655acb89",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "fd9c0723cbe148fb891b5161e5f5de0455b28bdcecf32157695037e972c8ac02",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": true
+    },
+    "src/App.vue": {
+      "filePath": "src/App.vue",
+      "contentHash": "246cc505d48369009bce41fe65241b83f90be68c2e2105df19c0b2444e938bba",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 182,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/AdjustControl.vue": {
+      "filePath": "src/components/AdjustControl.vue",
+      "contentHash": "21bb8ba487352e9b37f142ec4bbb8a4faae7642164918ea5a6e4759fe9b2d9d0",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 174,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/CustomPaletteModal.vue": {
+      "filePath": "src/components/CustomPaletteModal.vue",
+      "contentHash": "d1028a91b3201b2a47c57085d33081c53a2593f4f14a2ffe9b4e522f512fbb49",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 336,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/FxControl.vue": {
+      "filePath": "src/components/FxControl.vue",
+      "contentHash": "4d18a9a15668306d630d92b220461a06a8817b45faf13776ec999a897f3b41cc",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 67,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/PalettePanel.vue": {
+      "filePath": "src/components/PalettePanel.vue",
+      "contentHash": "683483caa922653f41bb1a32f91535c8a6d83256b313fd65a7f8d3845d188776",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 104,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/PipelineControl.vue": {
+      "filePath": "src/components/PipelineControl.vue",
+      "contentHash": "3157f6f7ae00ec4d1641c80a366da33505ae12e0989db2023880fdf55ecee786",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 698,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/PreviewPanel.vue": {
+      "filePath": "src/components/PreviewPanel.vue",
+      "contentHash": "671c0a35b0236197a59b1e6894dffb185f44d03f2122bec5edff24bb95751f91",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 206,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/StylePresets.vue": {
+      "filePath": "src/components/StylePresets.vue",
+      "contentHash": "3611e2f0aa1dfe25f489688524dd928c8f884b38b17a4b535c34996d933675a4",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 57,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/Taskbar.vue": {
+      "filePath": "src/components/Taskbar.vue",
+      "contentHash": "64f9654e26fe39924cc9a7bcb4415a882319547b9625dc8911cf2ccf8c262688",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 69,
+      "hasStructuralAnalysis": false
+    },
+    "src/components/WinFrame.vue": {
+      "filePath": "src/components/WinFrame.vue",
+      "contentHash": "d73b2926c8989d24515d68b8760ff861d9b8b7fbc90bd2c80e4b390aa73f5c03",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 80,
+      "hasStructuralAnalysis": false
+    },
+    "src/composables/usePipeline.ts": {
+      "filePath": "src/composables/usePipeline.ts",
+      "contentHash": "61522f8be696ebc45f9ce29fe7e2171c2838139f7a21e43e3ef59c9bdd26a11b",
+      "functions": [
+        {
+          "name": "usePipeline",
+          "params": [],
+          "exported": true,
+          "lineCount": 198
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vue",
+          "specifiers": [
+            "ref",
+            "reactive",
+            "computed",
+            "watch"
+          ]
+        },
+        {
+          "source": "@/data/palettes",
+          "specifiers": [
+            "PALETTES"
+          ]
+        },
+        {
+          "source": "@/pipeline/executor",
+          "specifiers": [
+            "executePipeline"
+          ]
+        },
+        {
+          "source": "@/pipeline/stages/postfx",
+          "specifiers": [
+            "postFxAlgorithms"
+          ]
+        },
+        {
+          "source": "@/pipeline/stages/shared",
+          "specifiers": [
+            "rgbToLab"
+          ]
+        },
+        {
+          "source": "@/types",
+          "specifiers": [
+            "RGB",
+            "FxKey",
+            "PaletteMap"
+          ]
+        },
+        {
+          "source": "@/pipeline/types",
+          "specifiers": [
+            "StageNode",
+            "StageId",
+            "PipelinePreset"
+          ]
+        }
+      ],
+      "exports": [
+        "usePipeline"
+      ],
+      "totalLines": 207,
+      "hasStructuralAnalysis": true
+    },
+    "src/composables/usePixelConverter.ts": {
+      "filePath": "src/composables/usePixelConverter.ts",
+      "contentHash": "cf9f288e2be7ec38005aaac8472b4ddbb61279f81b876776e5475575a8f3f409",
+      "functions": [
+        {
+          "name": "srgbToLinear",
+          "params": [
+            "c"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "rgbToLab",
+          "params": [
+            "r",
+            "g",
+            "b"
+          ],
+          "returnType": "[number, number, number]",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "deltaE",
+          "params": [
+            "lab1",
+            "lab2"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "nearestColor",
+          "params": [
+            "r",
+            "g",
+            "b",
+            "palette",
+            "paletteLab"
+          ],
+          "returnType": "RGB",
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "applyDither",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "strength",
+            "paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 30
+        },
+        {
+          "name": "applyErode",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "times"
+          ],
+          "exported": false,
+          "lineCount": 22
+        },
+        {
+          "name": "applyBCS",
+          "params": [
+            "imgData",
+            "brightness",
+            "contrast",
+            "saturation"
+          ],
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "applyDitherFade",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "frame"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "applyCRT",
+          "params": [
+            "ctx",
+            "w",
+            "h"
+          ],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "applyPaletteCycle",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "palette",
+            "frame"
+          ],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "applyGhost",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "frame"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "recommendedDitherStrength",
+          "params": [
+            "userValue",
+            "paletteSize"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "applyBlockRestriction",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "blockSize",
+            "maxColors"
+          ],
+          "exported": false,
+          "lineCount": 27
+        },
+        {
+          "name": "matchesPreset",
+          "params": [
+            "preset",
+            "pixelSize",
+            "paletteKey",
+            "adjust",
+            "fx"
+          ],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "applyGlitch",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "pixelSize"
+          ],
+          "exported": true,
+          "lineCount": 31
+        },
+        {
+          "name": "usePixelConverter",
+          "params": [],
+          "exported": true,
+          "lineCount": 203
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vue",
+          "specifiers": [
+            "ref",
+            "reactive",
+            "computed",
+            "watch"
+          ]
+        },
+        {
+          "source": "@/data/palettes",
+          "specifiers": [
+            "PALETTES"
+          ]
+        },
+        {
+          "source": "@/types",
+          "specifiers": [
+            "RGB",
+            "FxKey",
+            "AdjustState",
+            "FxState",
+            "PaletteMap"
+          ]
+        }
+      ],
+      "exports": [
+        "applyDitherFade",
+        "applyCRT",
+        "applyPaletteCycle",
+        "applyGhost",
+        "matchesPreset",
+        "applyGlitch",
+        "usePixelConverter"
+      ],
+      "totalLines": 478,
+      "hasStructuralAnalysis": true
+    },
+    "src/data/palettes.ts": {
+      "filePath": "src/data/palettes.ts",
+      "contentHash": "2be9e9facf9ce5a9c49031de3993a46bef0323ddd3c71f4c2940d032624bd03b",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/types",
+          "specifiers": [
+            "PaletteMap"
+          ]
+        }
+      ],
+      "exports": [
+        "PALETTES"
+      ],
+      "totalLines": 46,
+      "hasStructuralAnalysis": true
+    },
+    "src/data/presets.ts": {
+      "filePath": "src/data/presets.ts",
+      "contentHash": "641034d5d939d6e43d20f5cf46db721f60f24a69af83a45fc0e22a9417182e82",
+      "functions": [
+        {
+          "name": "makeStages",
+          "params": [
+            "overrides"
+          ],
+          "exported": false,
+          "lineCount": 24
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/pipeline/types",
+          "specifiers": [
+            "PipelinePreset"
+          ]
+        }
+      ],
+      "exports": [
+        "BUILTIN_PRESETS"
+      ],
+      "totalLines": 56,
+      "hasStructuralAnalysis": true
+    },
+    "src/main.ts": {
+      "filePath": "src/main.ts",
+      "contentHash": "50cb9f18b1c7115799ae456f0d0038840278b49ea520b5549d468ec76c248fb9",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vue",
+          "specifiers": [
+            "createApp"
+          ]
+        },
+        {
+          "source": "./App.vue",
+          "specifiers": [
+            "App"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 5,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/executor.ts": {
+      "filePath": "src/pipeline/executor.ts",
+      "contentHash": "da37d246229b94a035bbe3a501d88abe399372c8d76ea408241d9c21305316b6",
+      "functions": [
+        {
+          "name": "executePipeline",
+          "params": [
+            "sourceImg",
+            "canvas",
+            "stages",
+            "palette",
+            "paletteLab",
+            "displayPixelSize",
+            "maxDisplaySize"
+          ],
+          "returnType": "Promise<ImageData>",
+          "exported": true,
+          "lineCount": 135
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./types",
+          "specifiers": [
+            "StageNode",
+            "StageId"
+          ]
+        },
+        {
+          "source": "./stages/preprocess",
+          "specifiers": [
+            "preprocessAlgorithms"
+          ]
+        },
+        {
+          "source": "./stages/scale",
+          "specifiers": [
+            "scaleAlgorithms"
+          ]
+        },
+        {
+          "source": "./stages/palette",
+          "specifiers": [
+            "paletteAlgorithms"
+          ]
+        },
+        {
+          "source": "./stages/palettePost",
+          "specifiers": [
+            "palettePostAlgorithms"
+          ]
+        },
+        {
+          "source": "./stages/quantize",
+          "specifiers": [
+            "quantizeAlgorithms"
+          ]
+        },
+        {
+          "source": "./stages/dither",
+          "specifiers": [
+            "ditherAlgorithms"
+          ]
+        },
+        {
+          "source": "./stages/block",
+          "specifiers": [
+            "blockAlgorithms"
+          ]
+        },
+        {
+          "source": "./stages/shared",
+          "specifiers": [
+            "rgbToLab"
+          ]
+        }
+      ],
+      "exports": [
+        "executePipeline"
+      ],
+      "totalLines": 161,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/registry.ts": {
+      "filePath": "src/pipeline/registry.ts",
+      "contentHash": "7547c61f558091abed27d3f5ff4cbddd7f4b30ae41eda676ca78c76c7ebe9566",
+      "functions": [
+        {
+          "name": "groupBy",
+          "params": [
+            "arr",
+            "keyFn"
+          ],
+          "returnType": "Record<K, T[]>",
+          "exported": false,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./types",
+          "specifiers": [
+            "AlgorithmDef"
+          ]
+        }
+      ],
+      "exports": [
+        "ALGORITHM_REGISTRY",
+        "REGISTRY_BY_STAGE"
+      ],
+      "totalLines": 194,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/block.ts": {
+      "filePath": "src/pipeline/stages/block.ts",
+      "contentHash": "adcd0ab656e54227f3a7ea89fdf3adb562724999d593084cdf0c96a9075d2ff1",
+      "functions": [
+        {
+          "name": "none",
+          "params": [],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "tilePalette",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "params"
+          ],
+          "exported": false,
+          "lineCount": 29
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./shared",
+          "specifiers": [
+            "nearestColor",
+            "rgbToLab"
+          ]
+        }
+      ],
+      "exports": [
+        "blockAlgorithms"
+      ],
+      "totalLines": 48,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/dither.ts": {
+      "filePath": "src/pipeline/stages/dither.ts",
+      "contentHash": "c4e5f509cfc567b83f57c9bcb8fffee6d7563bae70838ded600dc382affd11d9",
+      "functions": [
+        {
+          "name": "none",
+          "params": [],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "floydSteinberg",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "params",
+            "paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 39
+        },
+        {
+          "name": "atkinson",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "params",
+            "paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 40
+        },
+        {
+          "name": "bayerDither",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "params",
+            "matrix",
+            "paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 27
+        },
+        {
+          "name": "bayer2x2",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "params",
+            "paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "bayer4x4",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "params",
+            "paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "bayer8x8",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "params",
+            "paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./shared",
+          "specifiers": [
+            "nearestColor"
+          ]
+        }
+      ],
+      "exports": [
+        "ditherAlgorithms",
+        "BAYER_4X4"
+      ],
+      "totalLines": 169,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/palette.ts": {
+      "filePath": "src/pipeline/stages/palette.ts",
+      "contentHash": "269afa0734bc5b5b9cbf1b3a056be11b5df1f85176890442633eae6deb90f148",
+      "functions": [
+        {
+          "name": "fixedPalette",
+          "params": [
+            "_imgData",
+            "_w",
+            "_h",
+            "_params"
+          ],
+          "returnType": "RGB[]",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "medianCutPalette",
+          "params": [
+            "imgData",
+            "_w",
+            "_h",
+            "params"
+          ],
+          "returnType": "RGB[]",
+          "exported": false,
+          "lineCount": 73
+        },
+        {
+          "name": "wuQuantize",
+          "params": [
+            "imgData",
+            "_w",
+            "_h",
+            "params"
+          ],
+          "returnType": "RGB[]",
+          "exported": false,
+          "lineCount": 156
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/types",
+          "specifiers": [
+            "RGB"
+          ]
+        }
+      ],
+      "exports": [
+        "paletteAlgorithms"
+      ],
+      "totalLines": 255,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/palettePost.ts": {
+      "filePath": "src/pipeline/stages/palettePost.ts",
+      "contentHash": "6ae53eb1cc1212bb0f66be2e5227fc8395ff62d53972d53527d8b9c28db0ae3c",
+      "functions": [
+        {
+          "name": "none",
+          "params": [
+            "palette",
+            "_params"
+          ],
+          "returnType": "RGB[]",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "hexToRgb",
+          "params": [
+            "hex"
+          ],
+          "returnType": "RGB",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "rgbToHsl",
+          "params": [
+            "r",
+            "g",
+            "b"
+          ],
+          "returnType": "[number, number, number]",
+          "exported": false,
+          "lineCount": 20
+        },
+        {
+          "name": "hue2rgb",
+          "params": [
+            "p",
+            "q",
+            "t"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "hslToRgb",
+          "params": [
+            "h",
+            "s",
+            "l"
+          ],
+          "returnType": "RGB",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "lerpHue",
+          "params": [
+            "from",
+            "to",
+            "t"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "clamp",
+          "params": [
+            "val",
+            "min",
+            "max"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "splitToning",
+          "params": [
+            "palette",
+            "params"
+          ],
+          "returnType": "RGB[]",
+          "exported": false,
+          "lineCount": 44
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/types",
+          "specifiers": [
+            "RGB"
+          ]
+        }
+      ],
+      "exports": [
+        "palettePostAlgorithms"
+      ],
+      "totalLines": 123,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/postfx.ts": {
+      "filePath": "src/pipeline/stages/postfx.ts",
+      "contentHash": "0dafa6310462ae0b73efc9d9896cf0235af08a718091b8e8c039683bca89a387",
+      "functions": [
+        {
+          "name": "none",
+          "params": [],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "crt",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "_params",
+            "_frame",
+            "_palette"
+          ],
+          "exported": false,
+          "lineCount": 16
+        },
+        {
+          "name": "glitch",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "params"
+          ],
+          "exported": false,
+          "lineCount": 37
+        },
+        {
+          "name": "ghost",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "_params",
+            "frame",
+            "_palette"
+          ],
+          "exported": false,
+          "lineCount": 17
+        },
+        {
+          "name": "paletteCycle",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "_params",
+            "frame",
+            "palette"
+          ],
+          "exported": false,
+          "lineCount": 27
+        },
+        {
+          "name": "ditherFade",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "_params",
+            "frame",
+            "_palette"
+          ],
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "combined",
+          "params": [
+            "ctx",
+            "w",
+            "h",
+            "params",
+            "frame",
+            "palette"
+          ],
+          "exported": false,
+          "lineCount": 14
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./dither",
+          "specifiers": [
+            "BAYER_4X4"
+          ]
+        }
+      ],
+      "exports": [
+        "postFxAlgorithms"
+      ],
+      "totalLines": 154,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/preprocess.ts": {
+      "filePath": "src/pipeline/stages/preprocess.ts",
+      "contentHash": "f3315622fdffff15134fbb32f86023817adb9cd28008da66a0be23e1d01f5ef4",
+      "functions": [
+        {
+          "name": "none",
+          "params": [
+            "_imgData"
+          ],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "gaussianBlur",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "params"
+          ],
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "boxBlur",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "params"
+          ],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "sharpen",
+          "params": [
+            "imgData",
+            "w",
+            "h"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "bcs",
+          "params": [
+            "imgData",
+            "_w",
+            "_h",
+            "params"
+          ],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "erode",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "params"
+          ],
+          "exported": false,
+          "lineCount": 23
+        },
+        {
+          "name": "applyKernel",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "kernel",
+            "kW",
+            "kSum"
+          ],
+          "exported": false,
+          "lineCount": 28
+        },
+        {
+          "name": "bilateralFilter",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "params"
+          ],
+          "exported": false,
+          "lineCount": 32
+        },
+        {
+          "name": "rgbToHsl",
+          "params": [
+            "r",
+            "g",
+            "b"
+          ],
+          "returnType": "[number, number, number]",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "hslToRgb",
+          "params": [
+            "h",
+            "s",
+            "l"
+          ],
+          "returnType": "[number, number, number]",
+          "exported": false,
+          "lineCount": 22
+        },
+        {
+          "name": "hslShift",
+          "params": [
+            "imgData",
+            "_w",
+            "_h",
+            "params"
+          ],
+          "exported": false,
+          "lineCount": 28
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./shared",
+          "specifiers": [
+            "applyBCS_"
+          ]
+        }
+      ],
+      "exports": [
+        "preprocessAlgorithms"
+      ],
+      "totalLines": 207,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/quantize.ts": {
+      "filePath": "src/pipeline/stages/quantize.ts",
+      "contentHash": "e68f56ce86ab7dfc3ef947cab35eddfbc25dfcd263318069d495718c95529d4b",
+      "functions": [
+        {
+          "name": "nearestLabQuantize",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "_params",
+            "paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "nearestRGBQuantize",
+          "params": [
+            "imgData",
+            "w",
+            "h",
+            "palette",
+            "_params",
+            "_paletteLab"
+          ],
+          "exported": false,
+          "lineCount": 15
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./shared",
+          "specifiers": [
+            "nearestColor",
+            "nearestColorRGB"
+          ]
+        }
+      ],
+      "exports": [
+        "quantizeAlgorithms",
+        "nearestColor",
+        "nearestColorRGB"
+      ],
+      "totalLines": 52,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/scale.ts": {
+      "filePath": "src/pipeline/stages/scale.ts",
+      "contentHash": "208aa3c667974fdffb584fe39a915da693769008111ac58466d3f0ee8529832a",
+      "functions": [
+        {
+          "name": "nearest",
+          "params": [
+            "source",
+            "targetW",
+            "targetH",
+            "_params"
+          ],
+          "returnType": "HTMLCanvasElement",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "bilinear",
+          "params": [
+            "source",
+            "targetW",
+            "targetH",
+            "_params"
+          ],
+          "returnType": "HTMLCanvasElement",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "bicubic",
+          "params": [
+            "source",
+            "targetW",
+            "targetH",
+            "_params"
+          ],
+          "returnType": "HTMLCanvasElement",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "lanczos",
+          "params": [
+            "source",
+            "targetW",
+            "targetH",
+            "_params"
+          ],
+          "returnType": "HTMLCanvasElement",
+          "exported": false,
+          "lineCount": 14
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "scaleAlgorithms"
+      ],
+      "totalLines": 73,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/stages/shared.ts": {
+      "filePath": "src/pipeline/stages/shared.ts",
+      "contentHash": "de7c794735a8dd05077112ccbfa8936846ccdb23b5232a62a6b0f8f12df6d7bb",
+      "functions": [
+        {
+          "name": "srgbToLinear",
+          "params": [
+            "c"
+          ],
+          "returnType": "number",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "rgbToLab",
+          "params": [
+            "r",
+            "g",
+            "b"
+          ],
+          "returnType": "[number, number, number]",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "deltaE",
+          "params": [
+            "lab1",
+            "lab2"
+          ],
+          "returnType": "number",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "nearestColor",
+          "params": [
+            "r",
+            "g",
+            "b",
+            "palette",
+            "paletteLab"
+          ],
+          "returnType": "[number, number, number]",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "nearestColorRGB",
+          "params": [
+            "r",
+            "g",
+            "b",
+            "palette"
+          ],
+          "returnType": "[number, number, number]",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "applyBCS_",
+          "params": [
+            "imgData",
+            "brightness",
+            "contrast",
+            "saturation"
+          ],
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "srgbToLinear",
+        "rgbToLab",
+        "deltaE",
+        "nearestColor",
+        "nearestColorRGB",
+        "applyBCS_"
+      ],
+      "totalLines": 74,
+      "hasStructuralAnalysis": true
+    },
+    "src/pipeline/types.ts": {
+      "filePath": "src/pipeline/types.ts",
+      "contentHash": "90088f421ddae27481ee67eb8ef2cd91b5e7211f1472b505b6f575b73893f170",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 36,
+      "hasStructuralAnalysis": true
+    },
+    "src/types/index.ts": {
+      "filePath": "src/types/index.ts",
+      "contentHash": "5c2d467950727813a4f13e323d1b61e07e0d716523bdb0000c2e439f04cc4a87",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 44,
+      "hasStructuralAnalysis": true
+    },
+    "tsconfig.app.json": {
+      "filePath": "tsconfig.app.json",
+      "contentHash": "92496d0db20bb707be8b697a9dc316c7ded1011f8a9998a472c89f3e612822f2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "tsconfig.json": {
+      "filePath": "tsconfig.json",
+      "contentHash": "3dd280df663fb5fbe9e85e5981289d27a7120b97a852827dd16e0ac296836d1b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 12,
+      "hasStructuralAnalysis": true
+    },
+    "tsconfig.node.json": {
+      "filePath": "tsconfig.node.json",
+      "contentHash": "72dbb38a180d6832378935c54353979bf05436c8b9ffd931af742af5991b6e03",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 28,
+      "hasStructuralAnalysis": true
+    },
+    "vite.config.ts": {
+      "filePath": "vite.config.ts",
+      "contentHash": "cf889b811adeb359d58189165b5d779321cfa4511abec2423acfc79d1425098c",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "node:url",
+          "specifiers": [
+            "fileURLToPath",
+            "URL"
+          ]
+        },
+        {
+          "source": "vite",
+          "specifiers": [
+            "defineConfig"
+          ]
+        },
+        {
+          "source": "@vitejs/plugin-vue",
+          "specifiers": [
+            "vue"
+          ]
+        },
+        {
+          "source": "vite-plugin-vue-devtools",
+          "specifiers": [
+            "vueDevTools"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

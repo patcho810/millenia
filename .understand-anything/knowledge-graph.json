@@ -1,0 +1,1703 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "millenia",
+    "languages": [
+      "typescript",
+      "vue",
+      "json",
+      "markdown",
+      "html"
+    ],
+    "frameworks": [
+      "Vue.js",
+      "Vite"
+    ],
+    "description": "A pixel converter - Vue 3 + Vite + TypeScript application",
+    "analyzedAt": "2026-05-31T13:10:24.444Z",
+    "gitCommitHash": "d62b2f7595f613b63dc43a0fe65c3cfc55cd0b14"
+  },
+  "nodes": [
+    {
+      "id": "file:src/pipeline/executor.ts",
+      "type": "file",
+      "title": "src/pipeline/executor.ts",
+      "summary": "图像处理流水线的核心执行引擎。",
+      "description": "该文件负责协调图像转换的各个阶段，包括缩放、预处理、调色板生成、颜色量化、分块处理和抖动。它按顺序调用各个算法模块，并将结果整合到最终的 ImageData 中。",
+      "tags": [
+        "pipeline",
+        "executor",
+        "image-processing",
+        "typescript"
+      ],
+      "complexity": "moderate",
+      "name": "executor.ts"
+    },
+    {
+      "id": "function:src/pipeline/executor.ts:executePipeline",
+      "type": "function",
+      "title": "executePipeline",
+      "summary": "执行完整的图像处理流水线。",
+      "description": "这是主入口函数，接收源图像、目标画布和配置阶段。它计算显示尺寸，依次运行 scale、preprocess、palette、palette-post、quantize、block 和 dither 阶段。最后将处理后的 ImageData 返回并绘制到画布上。",
+      "tags": [
+        "entry-point",
+        "async"
+      ],
+      "complexity": "moderate",
+      "name": "executePipeline"
+    },
+    {
+      "id": "file:src/pipeline/stages/palette.ts",
+      "type": "file",
+      "title": "src/pipeline/stages/palette.ts",
+      "summary": "调色板生成算法实现模块。",
+      "description": "包含多种从图像中提取代表性颜色的算法实现，如中值切割（Median Cut）和 Wu 快速量化算法。这些算法用于生成后续量化阶段所需的调色板。",
+      "tags": [
+        "palette",
+        "algorithm",
+        "quantization"
+      ],
+      "complexity": "moderate",
+      "name": "palette.ts"
+    },
+    {
+      "id": "function:src/pipeline/stages/palette.ts:medianCutPalette",
+      "type": "function",
+      "title": "medianCutPalette",
+      "summary": "中值切割算法生成调色板。",
+      "description": "通过递归地在颜色空间范围最大的轴上切割颜色簇，直到达到目标颜色数量，最后取每个簇的平均值作为调色板颜色。",
+      "tags": [
+        "algorithm",
+        "median-cut"
+      ],
+      "complexity": "moderate",
+      "name": "medianCutPalette"
+    },
+    {
+      "id": "function:src/pipeline/stages/palette.ts:wuQuantize",
+      "type": "function",
+      "title": "wuQuantize",
+      "summary": "Wu 快速颜色量化算法。",
+      "description": "基于 Xiaolin Wu 的算法实现，使用 3D 直方图和前缀和（Moments）来快速计算最优切割位置，以最小化方差误差。适用于生成高质量的索引颜色调色板。",
+      "tags": [
+        "algorithm",
+        "wu-quantize"
+      ],
+      "complexity": "moderate",
+      "name": "wuQuantize"
+    },
+    {
+      "id": "config:src/pipeline/stages/palette.ts:paletteAlgorithms",
+      "type": "config",
+      "title": "paletteAlgorithms",
+      "summary": "导出的调色板算法映射表。",
+      "description": "将算法标识符（如 'fixed', 'median-cut', 'wu'）映射到对应的处理函数。",
+      "tags": [
+        "registry"
+      ],
+      "complexity": "moderate",
+      "name": "palette.ts:paletteAlgorithms"
+    },
+    {
+      "id": "file:src/pipeline/stages/palettePost.ts",
+      "type": "file",
+      "title": "src/pipeline/stages/palettePost.ts",
+      "summary": "调色板后处理算法模块。",
+      "description": "在调色板生成后对其进行二次加工的算法，例如通过分离色调（Split Toning）来调整阴影和高光的颜色倾向。",
+      "tags": [
+        "palette",
+        "post-processing",
+        "color-grading"
+      ],
+      "complexity": "moderate",
+      "name": "palettePost.ts"
+    },
+    {
+      "id": "function:src/pipeline/stages/palettePost.ts:splitToning",
+      "type": "function",
+      "title": "splitToning",
+      "summary": "分离色调（Split Toning）后处理。",
+      "description": "根据颜色的亮度（L），对调色板中的颜色进行色相偏移。较低亮度的颜色向阴影色偏移，较高亮度的颜色向高光色偏移。常用于复古或艺术化的滤镜效果。",
+      "tags": [
+        "algorithm",
+        "split-toning"
+      ],
+      "complexity": "moderate",
+      "name": "splitToning"
+    },
+    {
+      "id": "config:src/pipeline/stages/palettePost.ts:palettePostAlgorithms",
+      "type": "config",
+      "title": "palettePostAlgorithms",
+      "summary": "导出的调色板后处理算法映射表。",
+      "description": "包含 'none' 和 'split-toning' 等后处理选项的注册表。",
+      "tags": [
+        "registry"
+      ],
+      "complexity": "moderate",
+      "name": "palettePost.ts:palettePostAlgorithms"
+    },
+    {
+      "id": "file:src/pipeline/stages/scale.ts",
+      "type": "file",
+      "title": "src/pipeline/stages/scale.ts",
+      "summary": "图像缩放算法模块。",
+      "description": "提供多种图像缩放技术，主要利用 Canvas API 的内置插值质量控制。这些算法决定了像素化转换前图像的基础分辨率。",
+      "tags": [
+        "scale",
+        "resampling",
+        "canvas"
+      ],
+      "complexity": "moderate",
+      "name": "scale.ts"
+    },
+    {
+      "id": "function:src/pipeline/stages/scale.ts:nearest",
+      "type": "function",
+      "title": "nearest",
+      "summary": "最近邻缩放算法。",
+      "description": "不进行平滑插值的缩放方式，保持硬边缘，常用于像素艺术风格。",
+      "tags": [
+        "nearest-neighbor"
+      ],
+      "complexity": "moderate",
+      "name": "nearest"
+    },
+    {
+      "id": "config:src/pipeline/stages/scale.ts:scaleAlgorithms",
+      "type": "config",
+      "title": "scaleAlgorithms",
+      "summary": "导出的缩放算法映射表。",
+      "description": "包含 'nearest', 'bilinear', 'bicubic', 'lanczos' 等缩放算法的集合。",
+      "tags": [
+        "registry"
+      ],
+      "complexity": "moderate",
+      "name": "scale.ts:scaleAlgorithms"
+    },
+    {
+      "id": "file:src/pipeline/stages/block.ts",
+      "label": "block.ts",
+      "type": "file",
+      "data": {
+        "language": "typescript",
+        "fileCategory": "code",
+        "lines": 47
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/block.ts 文件",
+      "tags": [
+        "untagged"
+      ],
+      "name": "block.ts"
+    },
+    {
+      "id": "file:src/pipeline/stages/block.ts#RGB",
+      "label": "RGB",
+      "type": "class",
+      "data": {
+        "line": 3,
+        "kind": "type-alias"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/block.ts#RGB 类型",
+      "tags": [
+        "untagged"
+      ],
+      "name": "src/pipeline/stages/block.ts#RGB"
+    },
+    {
+      "id": "file:src/pipeline/stages/block.ts#BlockFn",
+      "label": "BlockFn",
+      "type": "class",
+      "data": {
+        "line": 5,
+        "kind": "type-alias"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/block.ts#BlockFn 类型",
+      "tags": [
+        "untagged"
+      ],
+      "name": "src/pipeline/stages/block.ts#BlockFn"
+    },
+    {
+      "id": "function:src/pipeline/stages/block.ts:none",
+      "label": "none",
+      "type": "function",
+      "data": {
+        "line": 12,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "none 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "none"
+    },
+    {
+      "id": "function:src/pipeline/stages/block.ts:tilePalette",
+      "label": "tilePalette",
+      "type": "function",
+      "data": {
+        "line": 14,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "tilePalette 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "tilePalette"
+    },
+    {
+      "id": "file:src/pipeline/stages/block.ts#blockAlgorithms",
+      "label": "blockAlgorithms",
+      "type": "config",
+      "data": {
+        "line": 44,
+        "kind": "const",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "c/pipeline/stages/block.ts#blockAlgorithms 配置",
+      "tags": [
+        "untagged"
+      ],
+      "name": "blockAlgorithms"
+    },
+    {
+      "id": "file:src/pipeline/stages/preprocess.ts",
+      "label": "preprocess.ts",
+      "type": "file",
+      "data": {
+        "language": "typescript",
+        "fileCategory": "code",
+        "lines": 206
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/preprocess.ts 文件",
+      "tags": [
+        "untagged"
+      ],
+      "name": "preprocess.ts"
+    },
+    {
+      "id": "file:src/pipeline/stages/preprocess.ts#PreprocessFn",
+      "label": "PreprocessFn",
+      "type": "class",
+      "data": {
+        "line": 3,
+        "kind": "type-alias"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/preprocess.ts#PreprocessFn 类型",
+      "tags": [
+        "untagged"
+      ],
+      "name": "src/pipeline/stages/preprocess.ts#PreprocessFn"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:none",
+      "label": "none",
+      "type": "function",
+      "data": {
+        "line": 10,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "none 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "none"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:gaussianBlur",
+      "label": "gaussianBlur",
+      "type": "function",
+      "data": {
+        "line": 12,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "gaussianBlur 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "gaussianBlur"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:boxBlur",
+      "label": "boxBlur",
+      "type": "function",
+      "data": {
+        "line": 22,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "boxBlur 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "boxBlur"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:sharpen",
+      "label": "sharpen",
+      "type": "function",
+      "data": {
+        "line": 31,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "sharpen 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "sharpen"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:bcs",
+      "label": "bcs",
+      "type": "function",
+      "data": {
+        "line": 35,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "bcs 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "bcs"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:erode",
+      "label": "erode",
+      "type": "function",
+      "data": {
+        "line": 44,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "erode 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "erode"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:applyKernel",
+      "label": "applyKernel",
+      "type": "function",
+      "data": {
+        "line": 68,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "applyKernel 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "applyKernel"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:bilateralFilter",
+      "label": "bilateralFilter",
+      "type": "function",
+      "data": {
+        "line": 97,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "bilateralFilter 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "bilateralFilter"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:rgbToHsl",
+      "label": "rgbToHsl",
+      "type": "function",
+      "data": {
+        "line": 130,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "rgbToHsl 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "rgbToHsl"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:hslToRgb",
+      "label": "hslToRgb",
+      "type": "function",
+      "data": {
+        "line": 145,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "hslToRgb 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "hslToRgb"
+    },
+    {
+      "id": "function:src/pipeline/stages/preprocess.ts:hslShift",
+      "label": "hslShift",
+      "type": "function",
+      "data": {
+        "line": 168,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "hslShift 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "hslShift"
+    },
+    {
+      "id": "file:src/pipeline/stages/preprocess.ts#preprocessAlgorithms",
+      "label": "preprocessAlgorithms",
+      "type": "config",
+      "data": {
+        "line": 197,
+        "kind": "const",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "c/pipeline/stages/preprocess.ts#preprocessAlgorithms 配置",
+      "tags": [
+        "untagged"
+      ],
+      "name": "preprocessAlgorithms"
+    },
+    {
+      "id": "file:src/pipeline/stages/quantize.ts",
+      "label": "quantize.ts",
+      "type": "file",
+      "data": {
+        "language": "typescript",
+        "fileCategory": "code",
+        "lines": 51
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/quantize.ts 文件",
+      "tags": [
+        "untagged"
+      ],
+      "name": "quantize.ts"
+    },
+    {
+      "id": "file:src/pipeline/stages/quantize.ts#RGB",
+      "label": "RGB",
+      "type": "class",
+      "data": {
+        "line": 3,
+        "kind": "type-alias"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/quantize.ts#RGB 类型",
+      "tags": [
+        "untagged"
+      ],
+      "name": "src/pipeline/stages/quantize.ts#RGB"
+    },
+    {
+      "id": "file:src/pipeline/stages/quantize.ts#QuantizeFn",
+      "label": "QuantizeFn",
+      "type": "class",
+      "data": {
+        "line": 5,
+        "kind": "type-alias"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/quantize.ts#QuantizeFn 类型",
+      "tags": [
+        "untagged"
+      ],
+      "name": "src/pipeline/stages/quantize.ts#QuantizeFn"
+    },
+    {
+      "id": "function:src/pipeline/stages/quantize.ts:nearestLabQuantize",
+      "label": "nearestLabQuantize",
+      "type": "function",
+      "data": {
+        "line": 14,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "nearestLabQuantize 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "nearestLabQuantize"
+    },
+    {
+      "id": "function:src/pipeline/stages/quantize.ts:nearestRGBQuantize",
+      "label": "nearestRGBQuantize",
+      "type": "function",
+      "data": {
+        "line": 30,
+        "kind": "function"
+      },
+      "complexity": "moderate",
+      "summary": "nearestRGBQuantize 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "nearestRGBQuantize"
+    },
+    {
+      "id": "file:src/pipeline/stages/quantize.ts#quantizeAlgorithms",
+      "label": "quantizeAlgorithms",
+      "type": "config",
+      "data": {
+        "line": 46,
+        "kind": "const",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "c/pipeline/stages/quantize.ts#quantizeAlgorithms 配置",
+      "tags": [
+        "untagged"
+      ],
+      "name": "quantizeAlgorithms"
+    },
+    {
+      "id": "file:src/pipeline/stages/shared.ts",
+      "label": "shared.ts",
+      "type": "file",
+      "data": {
+        "language": "typescript",
+        "fileCategory": "code",
+        "lines": 73
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/shared.ts 文件",
+      "tags": [
+        "untagged"
+      ],
+      "name": "shared.ts"
+    },
+    {
+      "id": "function:src/pipeline/stages/shared.ts:srgbToLinear",
+      "label": "srgbToLinear",
+      "type": "function",
+      "data": {
+        "line": 1,
+        "kind": "function",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "srgbToLinear 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "srgbToLinear"
+    },
+    {
+      "id": "function:src/pipeline/stages/shared.ts:rgbToLab",
+      "label": "rgbToLab",
+      "type": "function",
+      "data": {
+        "line": 6,
+        "kind": "function",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "rgbToLab 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "rgbToLab"
+    },
+    {
+      "id": "function:src/pipeline/stages/shared.ts:deltaE",
+      "label": "deltaE",
+      "type": "function",
+      "data": {
+        "line": 19,
+        "kind": "function",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "deltaE 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "deltaE"
+    },
+    {
+      "id": "function:src/pipeline/stages/shared.ts:nearestColor",
+      "label": "nearestColor",
+      "type": "function",
+      "data": {
+        "line": 24,
+        "kind": "function",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "nearestColor 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "nearestColor"
+    },
+    {
+      "id": "function:src/pipeline/stages/shared.ts:nearestColorRGB",
+      "label": "nearestColorRGB",
+      "type": "function",
+      "data": {
+        "line": 40,
+        "kind": "function",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "nearestColorRGB 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "nearestColorRGB"
+    },
+    {
+      "id": "function:src/pipeline/stages/shared.ts:applyBCS_",
+      "label": "applyBCS_",
+      "type": "function",
+      "data": {
+        "line": 55,
+        "kind": "function",
+        "exported": true
+      },
+      "complexity": "moderate",
+      "summary": "applyBCS_ 函数",
+      "tags": [
+        "untagged"
+      ],
+      "name": "applyBCS_"
+    },
+    {
+      "id": "file:README.md",
+      "type": "document",
+      "title": "项目说明文档",
+      "summary": "项目的基本介绍和说明。",
+      "description": "包含项目的名称 'millenia' 和简短描述 'A pixel converter'（像素转换器）。",
+      "tags": [
+        "文档",
+        "Markdown",
+        "项目介绍"
+      ],
+      "complexity": "simple",
+      "location": "README.md",
+      "name": "README.md"
+    },
+    {
+      "id": "file:index.html",
+      "type": "file",
+      "title": "主入口 HTML",
+      "summary": "应用程序的 HTML 入口点。",
+      "description": "定义了基本的 HTML 结构，包括挂载 Vue 应用的 div#app 容器，以及引入 /src/main.ts 作为模块脚本。",
+      "tags": [
+        "HTML",
+        "入口文件",
+        "标记语言"
+      ],
+      "complexity": "simple",
+      "location": "index.html",
+      "name": "index.html"
+    },
+    {
+      "id": "file:package.json",
+      "type": "config",
+      "title": "项目配置文件",
+      "summary": "Node.js 项目清单，定义依赖、脚本和元数据。",
+      "description": "包含项目名称 'millenia'，版本 '0.0.0'。定义了开发（dev）、构建（build）等脚本。核心依赖为 Vue 3.5。开发依赖包括 Vite 8、TypeScript 6 和相关的 Vue 插件。",
+      "tags": [
+        "配置",
+        "JSON",
+        "依赖管理",
+        "构建脚本"
+      ],
+      "complexity": "simple",
+      "location": "package.json",
+      "name": "package.json"
+    },
+    {
+      "id": "file:tsconfig.app.json",
+      "type": "config",
+      "title": "应用 TypeScript 配置",
+      "summary": "专门用于浏览器端应用代码的 TypeScript 编译器配置。",
+      "description": "继承自 Vue 的 DOM 配置，包含 src 目录下的所有文件和 Vue 组件。配置了路径别名 '@/*' 指向 './src/*'，并启用了 noUncheckedIndexedAccess 以增强类型安全性。",
+      "tags": [
+        "配置",
+        "TypeScript",
+        "Vue",
+        "编译器选项"
+      ],
+      "complexity": "simple",
+      "location": "tsconfig.app.json",
+      "name": "tsconfig.app.json"
+    },
+    {
+      "id": "file:tsconfig.json",
+      "type": "config",
+      "title": "主 TypeScript 配置",
+      "summary": "TypeScript 项目的根配置文件。",
+      "description": "本身不包含文件，而是通过 references 引用了 tsconfig.node.json 和 tsconfig.app.json，实现了项目引用的组织结构。",
+      "tags": [
+        "配置",
+        "TypeScript",
+        "项目引用"
+      ],
+      "complexity": "simple",
+      "location": "tsconfig.json",
+      "name": "tsconfig.json"
+    },
+    {
+      "id": "file:tsconfig.node.json",
+      "type": "config",
+      "title": "Node 环境 TypeScript 配置",
+      "summary": "专门用于 Node.js 环境（如配置文件）的 TypeScript 编译器配置。",
+      "description": "配置了适用于 Vite、Vitest 等配置文件的环境。使用了 'preserve' 模块模式和 'bundler' 模块解析。仅用于类型检查 (noEmit: true)。",
+      "tags": [
+        "配置",
+        "TypeScript",
+        "Node.js",
+        "Vite"
+      ],
+      "complexity": "simple",
+      "location": "tsconfig.node.json",
+      "name": "tsconfig.node.json"
+    },
+    {
+      "id": "document:devlog/log.md",
+      "type": "document",
+      "title": "开发日志",
+      "summary": "该文件记录了 Millenia 项目的开发历程。包含 2026-05-13 的项目初始化信息，涵盖核心算法（颜色空间转换、CIELAB 量化、Floyd-Steinberg 抖动）、辅助算法、内置特效及资源。还详细记录了 2026-05-17 的重大管线重构，将单体逻辑拆分为模块化管线系统，并新增了 Palette Post (Split Toning) 阶段及其具体实现逻辑。",
+      "tags": [
+        "devlog",
+        "documentation",
+        "history",
+        "pipeline"
+      ],
+      "complexity": "simple",
+      "path": "devlog/log.md",
+      "name": "log.md"
+    },
+    {
+      "id": "document:devlog/structure.md",
+      "type": "document",
+      "title": "项目结构",
+      "summary": "该文件描述了 Millenia 项目的完整目录结构、技术栈、执行脚本以及组件层级。重点梳理了核心管线的执行顺序（加载 -> 缩放 -> 预处理 -> 调色板生成 -> 调色板后处理 -> 量化 -> 分块限色 -> 抖动 -> 放大 -> 后处理特效），并详细解释了各阶段的功能及其对应的算法实现。",
+      "tags": [
+        "devlog",
+        "documentation",
+        "architecture",
+        "structure"
+      ],
+      "complexity": "simple",
+      "path": "devlog/structure.md",
+      "name": "structure.md"
+    },
+    {
+      "id": "document:devlog/todo.md",
+      "type": "document",
+      "title": "待办与改进",
+      "summary": "该文件列出了项目的待办事项与改进建议。包含已完成的功能（预设系统修复、Bilateral Filter、Blue Noise Dither、Wu's Quantization 等）以及待改进的技术点（Bayer 与 Blue Noise 强度统一、误差扩散噪点处理、持久化、性能优化等）。此外还规划了未来可能新增的预处理算法、调色板算法及输出格式支持。",
+      "tags": [
+        "devlog",
+        "documentation",
+        "roadmap",
+        "todo"
+      ],
+      "complexity": "simple",
+      "path": "devlog/todo.md",
+      "name": "todo.md"
+    },
+    {
+      "id": "file:src/App.vue",
+      "name": "App.vue",
+      "type": "file",
+      "description": "Vue 主应用组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/App.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/AdjustControl.vue",
+      "name": "AdjustControl.vue",
+      "type": "file",
+      "description": "调整控制组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/AdjustControl.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/CustomPaletteModal.vue",
+      "name": "CustomPaletteModal.vue",
+      "type": "file",
+      "description": "自定义调色板弹窗组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/CustomPaletteModal.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/FxControl.vue",
+      "name": "FxControl.vue",
+      "type": "file",
+      "description": "特效控制组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/FxControl.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/PalettePanel.vue",
+      "name": "PalettePanel.vue",
+      "type": "file",
+      "description": "调色板显示面板组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/PalettePanel.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/PipelineControl.vue",
+      "name": "PipelineControl.vue",
+      "type": "file",
+      "description": "流水线工作流控制组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/PipelineControl.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/PreviewPanel.vue",
+      "name": "PreviewPanel.vue",
+      "type": "file",
+      "description": "预览面板组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/PreviewPanel.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/StylePresets.vue",
+      "name": "StylePresets.vue",
+      "type": "file",
+      "description": "样式预设组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/StylePresets.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/Taskbar.vue",
+      "name": "Taskbar.vue",
+      "type": "file",
+      "description": "任务栏组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/Taskbar.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/components/WinFrame.vue",
+      "name": "WinFrame.vue",
+      "type": "file",
+      "description": "窗口框架组件",
+      "properties": {
+        "language": "vue"
+      },
+      "complexity": "moderate",
+      "summary": "src/components/WinFrame.vue 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/composables/usePipeline.ts",
+      "name": "usePipeline",
+      "type": "file",
+      "description": "流水线组合式函数",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/composables/usePipeline.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/composables/usePixelConverter.ts",
+      "name": "usePixelConverter",
+      "type": "file",
+      "description": "像素转换器组合式函数",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/composables/usePixelConverter.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/data/palettes.ts",
+      "name": "palettes.ts",
+      "type": "file",
+      "description": "调色板数据",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/data/palettes.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/data/presets.ts",
+      "name": "presets.ts",
+      "type": "file",
+      "description": "预设数据",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/data/presets.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/main.ts",
+      "name": "main.ts",
+      "type": "file",
+      "description": "应用入口点",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/main.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/pipeline/registry.ts",
+      "name": "registry.ts",
+      "type": "file",
+      "description": "算法注册表",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/registry.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/pipeline/stages/dither.ts",
+      "name": "dither.ts",
+      "type": "file",
+      "description": "抖动算法",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/dither.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/pipeline/stages/postfx.ts",
+      "name": "postfx.ts",
+      "type": "file",
+      "description": "后处理特效算法",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/stages/postfx.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/pipeline/types.ts",
+      "name": "types.ts",
+      "type": "file",
+      "description": "流水线类型",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/pipeline/types.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/types/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "description": "共享类型",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/types/index.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:src/vite.config.ts",
+      "name": "vite.config.ts",
+      "type": "file",
+      "description": "Vite 配置文件",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "src/vite.config.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "config:.understand-anything/.understandignore",
+      "name": ".understandignore",
+      "type": "config",
+      "description": "忽略配置",
+      "properties": {
+        "language": "unknown"
+      },
+      "complexity": "moderate",
+      "summary": ".understand-anything/.understandignore 配置",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "config:.understand-anything/config.json",
+      "name": "config.json",
+      "type": "config",
+      "description": "Understand 配置文件",
+      "properties": {
+        "language": "json"
+      },
+      "complexity": "moderate",
+      "summary": ".understand-anything/config.json 配置",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:env.d.ts",
+      "name": "env.d.ts",
+      "type": "file",
+      "description": "环境类型声明",
+      "properties": {
+        "language": "typescript"
+      },
+      "complexity": "moderate",
+      "summary": "env.d.ts 文件",
+      "tags": [
+        "untagged"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/stages/scale.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/stages/palette.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/stages/palettePost.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/stages/block.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/stages/dither.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/stages/preprocess.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/stages/quantize.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/stages/shared.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "file:src/pipeline/types.ts",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "function:src/pipeline/executor.ts:executePipeline",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/executor.ts",
+      "target": "function:src/pipeline/executor.ts:executePipeline",
+      "type": "exports",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "function:src/pipeline/executor.ts:executePipeline",
+      "target": "config:src/pipeline/stages/scale.ts:scaleAlgorithms",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "function:src/pipeline/executor.ts:executePipeline",
+      "target": "config:src/pipeline/stages/palette.ts:paletteAlgorithms",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "function:src/pipeline/executor.ts:executePipeline",
+      "target": "config:src/pipeline/stages/palettePost.ts:palettePostAlgorithms",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/palette.ts",
+      "target": "function:src/pipeline/stages/palette.ts:medianCutPalette",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/palette.ts",
+      "target": "function:src/pipeline/stages/palette.ts:wuQuantize",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/palette.ts",
+      "target": "config:src/pipeline/stages/palette.ts:paletteAlgorithms",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/palette.ts",
+      "target": "config:src/pipeline/stages/palette.ts:paletteAlgorithms",
+      "type": "exports",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "config:src/pipeline/stages/palette.ts:paletteAlgorithms",
+      "target": "function:src/pipeline/stages/palette.ts:medianCutPalette",
+      "type": "configures",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "config:src/pipeline/stages/palette.ts:paletteAlgorithms",
+      "target": "function:src/pipeline/stages/palette.ts:wuQuantize",
+      "type": "configures",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/palettePost.ts",
+      "target": "function:src/pipeline/stages/palettePost.ts:splitToning",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/palettePost.ts",
+      "target": "config:src/pipeline/stages/palettePost.ts:palettePostAlgorithms",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/palettePost.ts",
+      "target": "config:src/pipeline/stages/palettePost.ts:palettePostAlgorithms",
+      "type": "exports",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "config:src/pipeline/stages/palettePost.ts:palettePostAlgorithms",
+      "target": "function:src/pipeline/stages/palettePost.ts:splitToning",
+      "type": "configures",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/scale.ts",
+      "target": "function:src/pipeline/stages/scale.ts:nearest",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/scale.ts",
+      "target": "config:src/pipeline/stages/scale.ts:scaleAlgorithms",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/scale.ts",
+      "target": "config:src/pipeline/stages/scale.ts:scaleAlgorithms",
+      "type": "exports",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "config:src/pipeline/stages/scale.ts:scaleAlgorithms",
+      "target": "function:src/pipeline/stages/scale.ts:nearest",
+      "type": "configures",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/block.ts",
+      "target": "file:src/pipeline/stages/shared.ts",
+      "type": "imports",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/block.ts",
+      "target": "file:src/pipeline/stages/block.ts#RGB",
+      "type": "contains",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/block.ts",
+      "target": "file:src/pipeline/stages/block.ts#BlockFn",
+      "type": "contains",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/block.ts",
+      "target": "file:src/pipeline/stages/block.ts#blockAlgorithms",
+      "type": "contains",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/preprocess.ts",
+      "target": "file:src/pipeline/stages/shared.ts",
+      "type": "imports",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/preprocess.ts",
+      "target": "file:src/pipeline/stages/preprocess.ts#PreprocessFn",
+      "type": "contains",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/preprocess.ts",
+      "target": "file:src/pipeline/stages/preprocess.ts#preprocessAlgorithms",
+      "type": "contains",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/quantize.ts",
+      "target": "file:src/pipeline/stages/shared.ts",
+      "type": "imports",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/quantize.ts",
+      "target": "file:src/pipeline/stages/quantize.ts#RGB",
+      "type": "contains",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/quantize.ts",
+      "target": "file:src/pipeline/stages/quantize.ts#QuantizeFn",
+      "type": "contains",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/quantize.ts",
+      "target": "file:src/pipeline/stages/quantize.ts#quantizeAlgorithms",
+      "type": "contains",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/main.ts",
+      "target": "file:src/App.vue",
+      "type": "imports",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/registry.ts",
+      "target": "file:src/pipeline/types.ts",
+      "type": "imports",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/dither.ts",
+      "target": "file:src/pipeline/stages/shared.ts",
+      "type": "imports",
+      "direction": "forward"
+    },
+    {
+      "source": "file:src/pipeline/stages/postfx.ts",
+      "target": "file:src/pipeline/stages/dither.ts",
+      "type": "imports",
+      "direction": "forward"
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:ui-components",
+      "name": "UI 组件层",
+      "description": "Vue 3 视图层组件，负责应用程序的用户界面展示与交互。",
+      "nodeIds": [
+        "file:src/App.vue",
+        "file:src/components/AdjustControl.vue",
+        "file:src/components/CustomPaletteModal.vue",
+        "file:src/components/FxControl.vue",
+        "file:src/components/PalettePanel.vue",
+        "file:src/components/PipelineControl.vue",
+        "file:src/components/PreviewPanel.vue",
+        "file:src/components/StylePresets.vue",
+        "file:src/components/Taskbar.vue",
+        "file:src/components/WinFrame.vue"
+      ]
+    },
+    {
+      "id": "layer:composables",
+      "name": "组合式逻辑层 (Composables)",
+      "description": "封装业务逻辑的 Vue Composables，连接 UI 组件与底层 Pipeline 引擎。",
+      "nodeIds": [
+        "file:src/composables/usePipeline.ts",
+        "file:src/composables/usePixelConverter.ts"
+      ]
+    },
+    {
+      "id": "layer:pipeline-engine",
+      "name": "流水线引擎层 (Pipeline Engine)",
+      "description": "图像处理的核心算法与执行引擎，负责图像的像素化转换、量化、抖动及后处理。",
+      "nodeIds": [
+        "file:src/pipeline/executor.ts",
+        "function:src/pipeline/executor.ts:executePipeline",
+        "file:src/pipeline/registry.ts",
+        "file:src/pipeline/stages/palette.ts",
+        "function:src/pipeline/stages/palette.ts:medianCutPalette",
+        "function:src/pipeline/stages/palette.ts:wuQuantize",
+        "config:src/pipeline/stages/palette.ts:paletteAlgorithms",
+        "file:src/pipeline/stages/palettePost.ts",
+        "function:src/pipeline/stages/palettePost.ts:splitToning",
+        "config:src/pipeline/stages/palettePost.ts:palettePostAlgorithms",
+        "file:src/pipeline/stages/scale.ts",
+        "function:src/pipeline/stages/scale.ts:nearest",
+        "config:src/pipeline/stages/scale.ts:scaleAlgorithms",
+        "file:src/pipeline/stages/block.ts",
+        "file:src/pipeline/stages/block.ts#RGB",
+        "file:src/pipeline/stages/block.ts#BlockFn",
+        "function:src/pipeline/stages/block.ts:none",
+        "function:src/pipeline/stages/block.ts:tilePalette",
+        "file:src/pipeline/stages/block.ts#blockAlgorithms",
+        "file:src/pipeline/stages/preprocess.ts",
+        "file:src/pipeline/stages/preprocess.ts#PreprocessFn",
+        "function:src/pipeline/stages/preprocess.ts:none",
+        "function:src/pipeline/stages/preprocess.ts:gaussianBlur",
+        "function:src/pipeline/stages/preprocess.ts:boxBlur",
+        "function:src/pipeline/stages/preprocess.ts:sharpen",
+        "function:src/pipeline/stages/preprocess.ts:bcs",
+        "function:src/pipeline/stages/preprocess.ts:erode",
+        "function:src/pipeline/stages/preprocess.ts:applyKernel",
+        "function:src/pipeline/stages/preprocess.ts:bilateralFilter",
+        "function:src/pipeline/stages/preprocess.ts:rgbToHsl",
+        "function:src/pipeline/stages/preprocess.ts:hslToRgb",
+        "function:src/pipeline/stages/preprocess.ts:hslShift",
+        "file:src/pipeline/stages/preprocess.ts#preprocessAlgorithms",
+        "file:src/pipeline/stages/quantize.ts",
+        "file:src/pipeline/stages/quantize.ts#RGB",
+        "file:src/pipeline/stages/quantize.ts#QuantizeFn",
+        "function:src/pipeline/stages/quantize.ts:nearestLabQuantize",
+        "function:src/pipeline/stages/quantize.ts:nearestRGBQuantize",
+        "file:src/pipeline/stages/quantize.ts#quantizeAlgorithms",
+        "file:src/pipeline/stages/shared.ts",
+        "function:src/pipeline/stages/shared.ts:srgbToLinear",
+        "function:src/pipeline/stages/shared.ts:rgbToLab",
+        "function:src/pipeline/stages/shared.ts:deltaE",
+        "function:src/pipeline/stages/shared.ts:nearestColor",
+        "function:src/pipeline/stages/shared.ts:nearestColorRGB",
+        "function:src/pipeline/stages/shared.ts:applyBCS_",
+        "file:src/pipeline/stages/dither.ts",
+        "file:src/pipeline/stages/postfx.ts",
+        "file:src/pipeline/types.ts"
+      ]
+    },
+    {
+      "id": "layer:data",
+      "name": "静态数据层",
+      "description": "存储应用内置的调色板 (Palettes) 和预设样式 (Presets) 数据。",
+      "nodeIds": [
+        "file:src/data/palettes.ts",
+        "file:src/data/presets.ts"
+      ]
+    },
+    {
+      "id": "layer:types",
+      "name": "类型定义层",
+      "description": "全局 TypeScript 类型声明与环境定义文件。",
+      "nodeIds": [
+        "file:src/types/index.ts",
+        "file:env.d.ts"
+      ]
+    },
+    {
+      "id": "layer:application-entry",
+      "name": "应用入口层",
+      "description": "应用程序的挂载点与初始化入口。",
+      "nodeIds": [
+        "file:src/main.ts",
+        "file:index.html"
+      ]
+    },
+    {
+      "id": "layer:configuration",
+      "name": "配置层",
+      "description": "项目构建、编译器及工具链的相关配置文件。",
+      "nodeIds": [
+        "file:package.json",
+        "file:tsconfig.app.json",
+        "file:tsconfig.json",
+        "file:tsconfig.node.json",
+        "file:src/vite.config.ts",
+        "config:.understand-anything/.understandignore",
+        "config:.understand-anything/config.json"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "文档层",
+      "description": "项目说明、开发日志及设计规范文档。",
+      "nodeIds": [
+        "file:README.md",
+        "document:devlog/log.md",
+        "document:devlog/structure.md",
+        "document:devlog/todo.md"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "项目概述",
+      "description": "欢迎来到 Millenia。这是一个基于 Vue 3 和 TypeScript 开发的像素转换器应用。README 提供了项目的最基本信息。",
+      "nodeIds": [
+        "file:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "应用入口",
+      "description": "src/main.ts 是应用程序的入口点，负责初始化 Vue 实例并挂载到 DOM 容器中。",
+      "nodeIds": [
+        "file:src/main.ts"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "根组件",
+      "description": "App.vue 是应用的顶层组件，它定义了应用的基础布局，并协调各个功能面板的显示。",
+      "nodeIds": [
+        "file:src/App.vue"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "UI 交互层",
+      "description": "这是应用的用户界面部分。包含各种功能面板，如任务栏、预览面板、流水线控制等。这些组件共同构成了完整的交互体验。",
+      "nodeIds": [
+        "file:src/components/Taskbar.vue",
+        "file:src/components/WinFrame.vue",
+        "file:src/components/PreviewPanel.vue",
+        "file:src/components/PipelineControl.vue",
+        "file:src/components/PalettePanel.vue",
+        "file:src/components/StylePresets.vue",
+        "file:src/components/AdjustControl.vue",
+        "file:src/components/FxControl.vue",
+        "file:src/components/CustomPaletteModal.vue"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "业务逻辑组合式函数",
+      "description": "通过 Vue Composables (usePipeline, usePixelConverter) 将复杂的业务逻辑（如管线状态管理、像素转换调度）与 UI 状态分离。",
+      "nodeIds": [
+        "file:src/composables/usePipeline.ts",
+        "file:src/composables/usePixelConverter.ts"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "流水线架构定义",
+      "description": "types.ts 和 registry.ts 定义了图像处理流水线的类型系统和算法注册表，这是整个模块化管线系统的设计基础。",
+      "nodeIds": [
+        "file:src/pipeline/types.ts",
+        "file:src/pipeline/registry.ts"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "流水线执行引擎",
+      "description": "executor.ts 是图像处理的核心引擎，通过 executePipeline 函数按顺序调度缩放、预处理、调色板生成、量化和抖动等各个阶段。",
+      "nodeIds": [
+        "file:src/pipeline/executor.ts",
+        "function:src/pipeline/executor.ts:executePipeline"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "基础工具与缩放阶段",
+      "description": "shared.ts 包含跨阶段使用的颜色空间转换（如 RGB 到 Lab）等公共工具；scale.ts 则负责处理图像的基础分辨率缩放。",
+      "nodeIds": [
+        "file:src/pipeline/stages/shared.ts",
+        "file:src/pipeline/stages/scale.ts"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "预处理与调色板生成",
+      "description": "preprocess.ts 提供模糊、锐化等图像优化功能；palette.ts 则通过中值切割或 Wu 算法从图像中提取代表性的调色板颜色。",
+      "nodeIds": [
+        "file:src/pipeline/stages/preprocess.ts",
+        "file:src/pipeline/stages/palette.ts",
+        "file:src/pipeline/stages/palettePost.ts"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "量化、分块与抖动",
+      "description": "quantize.ts 将像素映射到调色板；block.ts 实现分块限色处理；dither.ts 则是通过抖动算法平衡低色深带来的视觉细节损失。",
+      "nodeIds": [
+        "file:src/pipeline/stages/quantize.ts",
+        "file:src/pipeline/stages/block.ts",
+        "file:src/pipeline/stages/dither.ts",
+        "file:src/pipeline/stages/postfx.ts"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "内置数据资源",
+      "description": "项目内置了一系列精选的调色板（palettes.ts）和样式预设（presets.ts），极大地方便了用户快速生成不同风格的像素艺术。",
+      "nodeIds": [
+        "file:src/data/palettes.ts",
+        "file:src/data/presets.ts"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "工程配置",
+      "description": "最后，你可以查看 package.json、vite.config.ts 和 tsconfig.json，了解项目的依赖关系、构建流程以及 TypeScript 的编译配置。",
+      "nodeIds": [
+        "file:package.json",
+        "file:src/vite.config.ts",
+        "file:tsconfig.json"
+      ]
+    }
+  ]
+}

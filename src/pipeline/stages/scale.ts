@@ -49,24 +49,8 @@ function bicubic(
   return c
 }
 
-function lanczos(
-  source: CanvasImageSource,
-  targetW: number,
-  targetH: number,
-  _params: Record<string, unknown>,
-): HTMLCanvasElement {
-  const c = document.createElement('canvas')
-  c.width = targetW; c.height = targetH
-  const ctx = c.getContext('2d')!
-  ctx.imageSmoothingEnabled = true
-  ctx.imageSmoothingQuality = 'high'
-  ctx.drawImage(source, 0, 0, targetW, targetH)
-  return c
-}
-
 export const scaleAlgorithms: Record<string, ScaleFn> = {
   'nearest': nearest,
   'bilinear': bilinear,
   'bicubic': bicubic,
-  'lanczos': lanczos,
 }

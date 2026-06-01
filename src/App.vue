@@ -9,28 +9,18 @@
             :display-pixel-size="converter.displayPixelSize.value"
             :palette-key="converter.paletteKey.value"
             :palettes="converter.palettes"
-            @update:display-pixel-size="converter.displayPixelSize.value = $event; converter.reconvert(getCanvas())"
-            @update:stage="(stageId, patch) => { converter.updateStage(stageId, patch); converter.reconvert(getCanvas()) }"
-            @update:palette-key="converter.paletteKey.value = $event; converter.reconvert(getCanvas())"
+            @update:display-pixel-size="onPixelSizeUpdate"
+            @update:stage="onStageUpdate"
+            @update:palette-key="onPaletteKeyUpdate"
           />
-          <!--
-          <AdjustControl
-            v-model="converter.adjust"
-            :palette-size="converter.currentPalette.value?.colors.length ?? 0"
-            @update:model-value="converter.reconvert(getCanvas())"
-          />
-          -->
-          <!--
-          <FxControl
-            v-model="converter.fx"
-            @toggle="(key) => converter.toggleFx(key, getCanvas())"
-          />
-          -->
         </WinFrame>
 
         <StylePresets
           :presets="presets"
-          :apply-preset="(p) => converter.applyPreset(p, getCanvas())"
+          :user-presets="converter.userPresets.value"
+          :apply-preset="applyPreset"
+          :save-preset="saveUserPreset"
+          :delete-user-preset="deleteUserPreset"
         />
 
         <WinFrame title="调色板" :body-style="{ padding: '6px' }">
@@ -38,7 +28,7 @@
             :palettes="converter.palettes"
             v-model="converter.paletteKey.value"
             :disabled="false"
-            @update:model-value="converter.reconvert(getCanvas())"
+            @update:model-value="onPaletteKeyUpdate"
             @open-custom="openCustomModal()"
           />
         </WinFrame>
@@ -52,7 +42,11 @@
         :is-processing="converter.isProcessing.value"
         :pixel-size="converter.displayPixelSize.value"
         :palette-name="converter.currentPalette.value?.name ?? ''"
-        @file-loaded="(file, canvas) => converter.loadImageFile(file, canvas)"
+        :compare-mode="converter.compareMode.value"
+        :source-image-data="converter.imageState.value.sourceImageData"
+        :base-image-data="converter.imageState.value.baseImageData"
+        @file-loaded="onFileLoaded"
+        @toggle-compare="converter.compareMode.value = !converter.compareMode.value"
       />
     </div>
 
@@ -72,6 +66,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { usePipeline } from '@/composables/usePipeline'
+import { useShortcuts, downloadCanvas } from '@/composables/useShortcuts'
 import type { RGB } from '@/types'
 import type { PipelinePreset } from '@/pipeline/types'
 import { BUILTIN_PRESETS } from '@/data/presets'
@@ -92,7 +87,55 @@ function getCanvas(): HTMLCanvasElement {
   return previewRef.value!.canvasRef!
 }
 
-// 自定义调色板弹窗状态
+function onPixelSizeUpdate(v: number) {
+  converter.displayPixelSize.value = v
+  converter.reconvert(getCanvas())
+}
+function onStageUpdate(stageId: string, patch: Record<string, unknown>) {
+  converter.updateStage(stageId as never, patch as never)
+  converter.reconvert(getCanvas())
+}
+function onPaletteKeyUpdate(key: string) {
+  converter.paletteKey.value = key
+  converter.reconvert(getCanvas())
+}
+function onFileLoaded(file: File, canvas: HTMLCanvasElement) {
+  converter.loadImageFile(file, canvas)
+}
+
+function applyPreset(p: PipelinePreset) {
+  converter.applyPreset(p, getCanvas())
+}
+function saveUserPreset(name: string) {
+  converter.saveCurrentAsPreset(name)
+}
+function deleteUserPreset(id: string) {
+  converter.deleteUserPreset(id)
+}
+
+// ---- C5: keyboard shortcuts ----
+useShortcuts({
+  onToggleCompare: () => {
+    if (!converter.hasImage.value) return
+    converter.compareMode.value = !converter.compareMode.value
+  },
+  onDownload: () => {
+    downloadCanvas(previewRef.value?.canvasRef ?? null)
+  },
+  onUndo: () => converter.undo(),
+  onRedo: () => converter.redo(),
+  onApplyPresetAt: (i) => {
+    const all: PipelinePreset[] = [...presets, ...converter.userPresets.value]
+    const p = all[i - 1]
+    if (p) applyPreset(p)
+  },
+  onPixelSizeDelta: (delta) => {
+    converter.adjustPixelSize(delta)
+  },
+  onToggleDither: () => converter.toggleDither(),
+})
+
+// ---- Custom palette modal state ----
 const modalVisible = ref(false)
 const modalEditKey = ref<string | undefined>(undefined)
 const modalEditName = ref<string | undefined>(undefined)

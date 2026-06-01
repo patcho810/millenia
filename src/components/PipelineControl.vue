@@ -113,7 +113,7 @@
           <option v-for="a in ALGOS['palette']" :key="a.id" :value="a.id">{{ a.label }}</option>
         </select>
       </div>
-      <div v-if="paletteAlgo === 'fixed'" class="stage-params">
+      <div v-if="isUseCurrentPalette" class="stage-params">
         <select
           :value="paletteKey"
           @change="$emit('update:paletteKey', ($event.target as HTMLSelectElement).value)"
@@ -139,7 +139,7 @@
     </div>
 
     <!-- ===== Palette Post ===== -->
-    <div v-if="!isFixedPalette" class="stage-row">
+    <div v-if="!isUseCurrentPalette" class="stage-row">
       <div class="stage-header">
         <span class="stage-name">Palette Post</span>
         <select
@@ -292,7 +292,6 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
   preprocess: [
     { id: 'none', label: 'None' },
     { id: 'gaussian-blur', label: 'Gaussian Blur' },
-    { id: 'box-blur', label: 'Box Blur' },
     { id: 'sharpen', label: 'Sharpen' },
     { id: 'bcs', label: 'BCS' },
     { id: 'erode', label: 'Erode' },
@@ -303,10 +302,9 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
     { id: 'nearest', label: 'Nearest' },
     { id: 'bilinear', label: 'Bilinear' },
     { id: 'bicubic', label: 'Bicubic' },
-    { id: 'lanczos', label: 'Lanczos' },
   ],
   palette: [
-    { id: 'fixed', label: 'Fixed' },
+    { id: 'none', label: 'Use Current Palette' },
     { id: 'median-cut', label: 'Median Cut' },
     { id: 'wu', label: "Wu's Quantization" },
   ],
@@ -326,7 +324,6 @@ const ALGOS: Record<Exclude<StageId, 'postfx'>, { id: string; label: string }[]>
     { id: 'none', label: 'None' },
     { id: 'floyd-steinberg', label: 'Floyd-Steinberg' },
     { id: 'atkinson', label: 'Atkinson' },
-    { id: 'bayer-2x2', label: 'Bayer 2\u00d72' },
     { id: 'bayer-4x4', label: 'Bayer 4\u00d74' },
     { id: 'bayer-8x8', label: 'Bayer 8\u00d78' },
   ],
@@ -352,9 +349,6 @@ interface ParamInfo {
 
 const ALGO_PARAMS: Record<string, ParamInfo[]> = {
   'preprocess:gaussian-blur': [
-    { key: 'radius', label: 'Radius', min: 0.5, max: 3, step: 0.5, default: 1 },
-  ],
-  'preprocess:box-blur': [
     { key: 'radius', label: 'Radius', min: 0.5, max: 3, step: 0.5, default: 1 },
   ],
   'preprocess:bcs': [
@@ -412,10 +406,6 @@ const ALGO_PARAMS: Record<string, ParamInfo[]> = {
   ],
   'palette:wu': [
     { key: 'colors', label: 'Colors', min: 2, max: 64, step: 1, default: 16 },
-  ],
-  'dither:bayer-2x2': [
-    { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
-    { key: 'threshold', label: 'Threshold', min: 0.1, max: 1, step: 0.05, default: 0.5 },
   ],
   'dither:bayer-4x4': [
     { key: 'strength', label: 'Strength', min: 0, max: 1, step: 0.05, default: 0.8 },
@@ -529,7 +519,7 @@ function onPreAlgoParam(algoId: string, key: string, value: number) {
 // --- palette ---
 
 const paletteAlgo = computed(() => stageByKey('palette').algorithm)
-const isFixedPalette = computed(() => paletteAlgo.value === 'fixed')
+const isUseCurrentPalette = computed(() => paletteAlgo.value === 'none')
 const isAdaptivePalette = computed(() => paletteAlgo.value === 'median-cut' || paletteAlgo.value === 'wu')
 
 const paletteKeys = computed(() => Object.keys(props.palettes))

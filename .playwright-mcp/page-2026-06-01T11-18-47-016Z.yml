@@ -1,0 +1,175 @@
+- generic [active] [ref=e7]:
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - generic [ref=e14]: Pixel.exe
+            - generic [ref=e15]:
+              - button "_" [ref=e16] [cursor=pointer]
+              - button "□" [ref=e17] [cursor=pointer]
+              - button "×" [ref=e18] [cursor=pointer]
+          - generic [ref=e20]:
+            - paragraph [ref=e21]: SIZE
+            - generic [ref=e22]:
+              - button "2px" [ref=e23] [cursor=pointer]
+              - button "3px" [ref=e24] [cursor=pointer]
+              - button "4px" [ref=e25] [cursor=pointer]
+              - button "5px" [ref=e26] [cursor=pointer]
+            - paragraph [ref=e27]: PIPELINE
+            - generic [ref=e28]:
+              - generic [ref=e30]: Preprocess
+              - generic [ref=e31]:
+                - generic [ref=e32] [cursor=pointer]:
+                  - checkbox "Gaussian Blur" [ref=e33]
+                  - generic [ref=e34]: Gaussian Blur
+                - generic [ref=e35] [cursor=pointer]:
+                  - checkbox "Box Blur" [ref=e36]
+                  - generic [ref=e37]: Box Blur
+                - generic [ref=e38] [cursor=pointer]:
+                  - checkbox "Sharpen" [ref=e39]
+                  - generic [ref=e40]: Sharpen
+                - generic [ref=e41] [cursor=pointer]:
+                  - checkbox "BCS" [ref=e42]
+                  - generic [ref=e43]: BCS
+                - generic [ref=e44] [cursor=pointer]:
+                  - checkbox "Erode" [ref=e45]
+                  - generic [ref=e46]: Erode
+                - generic [ref=e47] [cursor=pointer]:
+                  - checkbox "Bilateral Filter" [ref=e48]
+                  - generic [ref=e49]: Bilateral Filter
+                - generic [ref=e50] [cursor=pointer]:
+                  - checkbox "HSL Shift" [ref=e51]
+                  - generic [ref=e52]: HSL Shift
+            - generic [ref=e54]:
+              - generic [ref=e55]: Scale
+              - combobox [ref=e56] [cursor=pointer]:
+                - option "Nearest"
+                - option "Bilinear"
+                - option "Bicubic"
+                - option "Lanczos"
+            - generic [ref=e57]:
+              - generic [ref=e58]:
+                - generic [ref=e59]: Palette
+                - combobox [ref=e60] [cursor=pointer]:
+                  - option "Fixed" [selected]
+                  - option "Median Cut"
+                  - option "Wu's Quantization"
+              - combobox [ref=e62] [cursor=pointer]:
+                - option "Sora" [selected]
+                - option "NES"
+                - option "PICO-8"
+                - option "Sweetie 16"
+                - option "Sweetie 24"
+                - option "Sweetie 32"
+                - option "Mono"
+                - option "Sepia"
+                - option "Sunset"
+                - option "Ocean"
+            - generic [ref=e64]:
+              - generic [ref=e65]: Quantize
+              - combobox [ref=e66] [cursor=pointer]:
+                - option "Nearest Lab"
+                - option "Nearest RGB"
+            - generic [ref=e68]:
+              - generic [ref=e69]: Block
+              - combobox [ref=e70] [cursor=pointer]:
+                - option "None" [selected]
+                - option "Tile Palette"
+            - generic [ref=e72]:
+              - generic [ref=e73]: Dither
+              - combobox [ref=e74] [cursor=pointer]:
+                - option "None" [selected]
+                - option "Floyd-Steinberg"
+                - option "Atkinson"
+                - option "Bayer 2×2"
+                - option "Bayer 4×4"
+                - option "Bayer 8×8"
+            - generic [ref=e75]:
+              - generic [ref=e77]: Post FX
+              - generic [ref=e78]:
+                - generic [ref=e79] [cursor=pointer]:
+                  - checkbox "CRT" [ref=e80]
+                  - generic [ref=e81]: CRT
+                - generic [ref=e82] [cursor=pointer]:
+                  - checkbox "Glitch" [ref=e83]
+                  - generic [ref=e84]: Glitch
+                - generic [ref=e85] [cursor=pointer]:
+                  - checkbox "Ghost" [ref=e86]
+                  - generic [ref=e87]: Ghost
+                - generic [ref=e88] [cursor=pointer]:
+                  - checkbox "Palette Cycle" [ref=e89]
+                  - generic [ref=e90]: Palette Cycle
+                - generic [ref=e91] [cursor=pointer]:
+                  - checkbox "Dither Fade" [ref=e92]
+                  - generic [ref=e93]: Dither Fade
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - generic [ref=e96]: 风格预设
+            - generic [ref=e97]:
+              - button "_" [ref=e98] [cursor=pointer]
+              - button "□" [ref=e99] [cursor=pointer]
+              - button "×" [ref=e100] [cursor=pointer]
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - generic [ref=e104]: 内置
+              - button "Pixeliaze" [ref=e106] [cursor=pointer]
+            - generic [ref=e107]:
+              - textbox "预设名称" [ref=e108]
+              - button "💾 保存当前" [disabled] [ref=e109]
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e112]: 调色板
+            - generic [ref=e113]:
+              - button "_" [ref=e114] [cursor=pointer]
+              - button "□" [ref=e115] [cursor=pointer]
+              - button "×" [ref=e116] [cursor=pointer]
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - button "Sora" [ref=e120] [cursor=pointer]:
+                - generic [ref=e130]: Sora
+              - button "NES" [ref=e131] [cursor=pointer]:
+                - generic [ref=e141]: NES
+              - button "PICO-8" [ref=e142] [cursor=pointer]:
+                - generic [ref=e152]: PICO-8
+              - button "Sweetie 16" [ref=e153] [cursor=pointer]:
+                - generic [ref=e163]: Sweetie 16
+              - button "Sweetie 24" [ref=e164] [cursor=pointer]:
+                - generic [ref=e174]: Sweetie 24
+              - button "Sweetie 32" [ref=e175] [cursor=pointer]:
+                - generic [ref=e185]: Sweetie 32
+              - button "Mono" [ref=e186] [cursor=pointer]:
+                - generic [ref=e196]: Mono
+              - button "Sepia" [ref=e197] [cursor=pointer]:
+                - generic [ref=e207]: Sepia
+              - button "Sunset" [ref=e208] [cursor=pointer]:
+                - generic [ref=e218]: Sunset
+              - button "Ocean" [ref=e219] [cursor=pointer]:
+                - generic [ref=e229]: Ocean
+            - button "＋ 自定义调色板..." [ref=e230] [cursor=pointer]
+      - generic [ref=e231]:
+        - generic [ref=e232]:
+          - generic [ref=e233]: 预览
+          - generic [ref=e234]:
+            - button "_" [ref=e235] [cursor=pointer]
+            - button "□" [ref=e236] [cursor=pointer]
+            - button "×" [ref=e237] [cursor=pointer]
+        - generic [ref=e238]:
+          - generic [ref=e239]: 文件(F)
+          - generic [ref=e240]: 编辑(E)
+          - generic [ref=e241]: 视图(V)
+          - generic [ref=e242]: 帮助(H)
+        - generic [ref=e245] [cursor=pointer]:
+          - text: 拖放图片到此处
+          - text: 或点击选择文件
+        - generic [ref=e246]:
+          - button "↓ 下载 PNG" [disabled] [ref=e247]
+          - button "打开图片" [ref=e248] [cursor=pointer]
+          - button "👁 对比" [disabled] [ref=e249]
+        - generic [ref=e250]: 就绪2pxSora
+    - generic [ref=e251]:
+      - button "🪟 Start" [ref=e252] [cursor=pointer]
+      - button "📄 Pixel Converter" [ref=e253] [cursor=pointer]
+      - generic [ref=e254]: 19:18
+  - generic "Toggle devtools panel" [ref=e2] [cursor=pointer]:
+    - img [ref=e3]

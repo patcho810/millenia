@@ -19,15 +19,6 @@ function gaussianBlur(imgData: ImageData, w: number, h: number, params: Record<s
   applyKernel(imgData, w, h, kernel, kW, kSum)
 }
 
-function boxBlur(imgData: ImageData, w: number, h: number, params: Record<string, number>) {
-  const radius = Math.max(1, params['radius'] ?? 1)
-  const kW = 2 * radius + 1
-  const kernel: number[] = []
-  for (let i = 0; i < kW * kW; i++) kernel.push(1)
-  const kSum = kW * kW
-  applyKernel(imgData, w, h, kernel, kW, kSum)
-}
-
 function sharpen(imgData: ImageData, w: number, h: number) {
   applyKernel(imgData, w, h, [0, -1, 0, -1, 5, -1, 0, -1, 0], 3, 1)
 }
@@ -197,7 +188,6 @@ function hslShift(imgData: ImageData, _w: number, _h: number, params: Record<str
 export const preprocessAlgorithms: Record<string, PreprocessFn> = {
   'none': none,
   'gaussian-blur': gaussianBlur,
-  'box-blur': boxBlur,
   'sharpen': sharpen,
   'bcs': bcs,
   'erode': erode,

@@ -7,15 +7,6 @@ type PaletteFn = (
   params: Record<string, number>,
 ) => RGB[]
 
-function fixedPalette(
-  _imgData: ImageData,
-  _w: number,
-  _h: number,
-  _params: Record<string, number>,
-): RGB[] {
-  return []
-}
-
 function medianCutPalette(
   imgData: ImageData,
   _w: number,
@@ -248,7 +239,6 @@ function wuQuantize(
 }
 
 export const paletteAlgorithms: Record<string, PaletteFn> = {
-  'fixed': fixedPalette,
   'median-cut': medianCutPalette,
   'wu': wuQuantize,
 }
